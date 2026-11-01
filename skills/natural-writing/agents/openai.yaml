@@ -1,0 +1,4 @@
+interface:
+  display_name: "自然表达"
+  short_description: "写出自然直接的中文与英文，去掉重复铺垫、无关解释和改稿痕迹，保留意思"
+  default_prompt: "用 $natural-writing 处理这段文字，让表达自然、直接，保留本意，只给改好的版本。"
