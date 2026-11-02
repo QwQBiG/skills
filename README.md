@@ -8,7 +8,7 @@
 
 | 名称 | 用途 |
 | --- | --- |
-| [natural-writing](skills/natural-writing/SKILL.md) | 中文、英文写作、润色与审改 |
+| [natural-writing](skills/natural-writing/SKILL.md) | 中文、英文写作、润色与审改，适用于 Codex |
 
 ## 安装
 

@@ -8,7 +8,7 @@ My collection of agent skills.
 
 | Name | Purpose |
 | --- | --- |
-| [natural-writing](skills/natural-writing/SKILL.md) | Writing, editing, and reviewing Chinese and English prose |
+| [natural-writing](skills/natural-writing/SKILL.md) | Chinese and English writing, editing, and review for Codex |
 
 ## Installation
 
