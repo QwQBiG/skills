@@ -8,6 +8,7 @@
 
 | 名称 | 用途 |
 | --- | --- |
+| [code-simplification-review](skills/code-simplification-review/SKILL.md) | 重构前审查哪些复杂性值得消除，从调用方和测试核验建议 |
 | [natural-writing](skills/natural-writing/SKILL.md) | 中文、英文写作、润色与审改，适用于 Codex |
 
 ## 安装
