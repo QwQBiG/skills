@@ -69,108 +69,61 @@ def _wrap(text, width):
         yield line
 
 
-def _center(text, width):
-    free = max(0, width - _width(text))
-    return " " * (free // 2) + text + " " * (free - free // 2)
-
-
-def _staircase(width, current, goal, marks, fills, paint):
-    gap = "  " if width >= 54 else " "
-    cell = min(12, (width - 5 * len(gap)) // 6)
-    margin = " " * max(0, (width - 6 * cell - 5 * len(gap)) // 2)
-    columns = []
-    for level in range(6):
-        is_current = level == current
-        is_goal = level == goal
-        reached = current is not None and level < current
-        if is_current and is_goal:
-            pattern, color = fills[1] + fills[2], "1;35"
-        elif is_current:
-            pattern, color = fills[1], "1;32"
-        elif is_goal:
-            pattern, color = fills[2], "1;35"
-        elif reached:
-            pattern, color = fills[0], "36"
-        else:
-            pattern, color = fills[3], "34"
-        bar = (pattern * cell)[:cell]
-        marker = (marks[0] if is_current else "") + str(level) + (marks[1] if is_goal else "")
-        columns.append((paint(bar, color), paint(_center(marker, cell), color)))
-
-    for height in reversed(range(6)):
-        parts = [bar if level >= height else " " * cell
-                 for level, (bar, _) in enumerate(columns)]
-        yield margin + gap.join(parts)
-    yield margin + gap.join(label for _, label in columns)
-
-
-def render_terminal(data, *, width, color, ascii_only=False, inspect_level=None):
+def render_terminal(data, *, width, color, ascii_only=False, inspect_level=None, detail=None):
     """Return the validated map as terminal text, including its final newline."""
     width = max(1, min(width, 100))
-    marks = ("@", "^") if ascii_only else ("●", "◆")
-    fills = ("=", "#", "/", ".") if ascii_only else ("▓", "█", "▒", "░")
-    rule = "-" if ascii_only else "━"
-    joiner = " | " if ascii_only else "  ·  "
-    unknown = "-" if ascii_only else "—"
+    joiner = " | " if ascii_only else " · "
     lines = []
 
     def paint(text, sgr):
         return f"\x1b[{sgr}m{text}\x1b[0m" if color else text
 
-    def paragraph(text, *, prefix="", sgr=None):
-        indent = min(_width(prefix), max(0, width - 2))
-        if indent != _width(prefix):
-            prefix = ""
-            indent = 0
-        for i, line in enumerate(_wrap(text, width - indent)):
-            line = (prefix if i == 0 else " " * indent) + line
-            lines.append(paint(line, sgr) if sgr else line)
+    def paragraph(text, *, indent=0, sgr=None):
+        indent = min(indent, max(0, width - 2))
+        for line in _wrap(text, width - indent):
+            lines.append(" " * indent + (paint(line, sgr) if sgr else line))
 
     paragraph(data["topic"], sgr="1;36")
-    lines.append(paint(rule * width, "36"))
-    if data.get("summary"):
-        paragraph(data["summary"])
-    lines.append("")
-    paragraph(data["scale_label"], sgr="1")
-    current, goal = data["current"], data["goal"]
-    if width >= 23:
-        lines.extend(_staircase(width, current, goal, marks, fills, paint))
+    abilities = data["abilities"]
+    if detail is None:
+        expanded = next((a for a in abilities if a.get("focus") and a.get("next_check")), None)
     else:
-        # On a very narrow terminal rotate the staircase so its labels still fit.
-        for level in range(6):
-            marker = (marks[0] if level == current else "") + (marks[1] if level == goal else "")
-            paragraph(f"{level}{marker} {fills[1] * (level + 1)}", sgr="36")
-    lines.append("")
-    for marker, key, value, sgr in (
-        (marks[0], "current_label", current, "1;32"),
-        (marks[1], "goal_label", goal, "1;35"),
-    ):
-        value_text = unknown if value is None else f"{value} {data['levels'][value]['label']}"
-        paragraph(f"{data[key]}  {value_text}", prefix=marker + " ", sgr=sgr)
+        expanded = next((a for a in abilities if a["name"] == detail), None)
+        if expanded is None:
+            raise ValueError(f"unknown ability {detail!r}")
 
-    selected = next((n for n in (inspect_level, current, goal) if n is not None), None)
-    if selected is not None:
-        item = data["levels"][selected]
-        paragraph(f"{selected} {item['label']}{joiner}{item['meaning']}")
-
-    lines.append("")
-    paragraph(data["evidence_label"], sgr="1")
-    state_styles = {
-        "guided": ("~" if ascii_only else "◐", "1;33"),
-        "observed": ("*" if ascii_only else "●", "1;36"),
-        "unassessed": ("o" if ascii_only else "○", "1"),
-    }
+    column = min(20, width // 3, max((_width(a["name"]) for a in abilities), default=0))
+    colors = {"guided": "33", "observed": "36", "unassessed": "39"}
     full, empty = ("#", ".") if ascii_only else ("■", "□")
-    for i, ability in enumerate(data["abilities"]):
-        if i:
-            lines.append("")
-        symbol, sgr = state_styles[ability["state"]]
-        paragraph(ability["name"], prefix=symbol + " ", sgr=sgr)
-        level = ability.get("level")
+    for ability in abilities:
+        name = ability["name"]
         status = ability["status"]
+        level = ability.get("level")
         if level is not None:
-            meter = full * level + empty * (5 - level)
-            status = f"{meter} {level}/5{joiner}{status}"
-        paragraph(status, prefix="  ", sgr=sgr)
-        paragraph(ability["evidence"], prefix="  ")
+            status = f"{full * level}{empty * (5 - level)} {level}/5"
+        focus = f" [{data['focus_label']}]" if ability.get("focus") else ""
+        gap = " " * (2 + max(0, column - _width(name)))
+        sgr = colors[ability["state"]]
+        if _width(name + gap + status + focus) <= width:
+            lines.append(name + gap + paint(status + focus, sgr))
+        else:
+            paragraph(f"{name} {status}{focus}", sgr=sgr)
+        if ability is expanded:
+            if detail is not None:
+                if level is not None and ability["status"]:
+                    paragraph(ability["status"], indent=2)
+                paragraph(ability["evidence"], indent=2)
+            if ability.get("next_check"):
+                paragraph(f"{data['check_label']}{joiner}{ability['next_check']}", indent=2)
+
+    context = []
+    for key in ("goal", "current"):
+        level = data[key]
+        if level is not None:
+            context.append(f"{data[key + '_label']} {level}/5 {data['levels'][level]['label']}")
+    if context:
+        paragraph(joiner.join(context))
+    if inspect_level is not None:
+        item = data["levels"][inspect_level]
+        paragraph(f"{inspect_level}/5 {item['label']}{joiner}{item['meaning']}")
     return "\n".join(lines) + "\n"

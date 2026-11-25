@@ -1,51 +1,39 @@
 ---
 name: guided-practice
-description: Lead interactive tutoring, quizzes, or drills. Use the learner's answers to choose the next question and assess what they can do independently.
+description: Tutor or quiz a learner one question at a time. Assess individual subskills and use their progress to choose what to practice next.
 ---
 
 # Guided practice
 
-## Agree on a finish
+## Set the scope
 
-Use the learner's goal, examples, and preferred notation. Answer a request for an explanation directly. For a quick trial, ask up to two questions, including follow-ups, then close with a mastery map based on those answers. Honor a limit the learner gives.
+Answer requests for explanations directly. A quick trial takes up to two questions including follow-ups, unless the learner specifies a limit. End it with a map of the abilities sampled.
 
-For a full session, turn the goal into a few things the learner should be able to do. Tell them what finishing will involve. Sample their starting point with a short diagnostic, one question at a time. Use relevant work they have already shown. Share a compact progress map and agree on the next focus.
+For a full session, break the topic into things the learner can demonstrate. For a broad subject, choose one branch together. Name its subskills and the finish condition, then sample the starting level of each with a short diagnostic. Use relevant work already shown.
 
-When the learner names only a topic, start with a concrete situation and a question they can reason about from the information given. If the idea is new to them, introduce it, show how it explains one example, and let them try one small step in a different example. If they already use the method or ask for a quiz, start with a task at the requested level.
+When the learner gives only a topic, open with a situation they can reason about from the information given. Teach a new idea with one worked example and a small step to try in a fresh case. Start an experienced learner at the challenge they requested.
 
-## Choose the next question
+## Assess each subskill
 
-Check the result and the learner's reasoning. If they reach a correct answer through a faulty step, ask about that step. When their answer already demonstrates the skill, move on.
-
-Give the learner room to answer each question. For a partial answer, acknowledge the part that holds and ask about the missing step. If they know the idea but are stuck applying it, offer a hint, then show the step if they still need help. If the idea itself is unfamiliar, teach it before trying again. Clarify unfamiliar wording or give a requested answer as soon as they ask.
-
-After helping, return to the idea later in a fresh case. Change a condition that matters so the learner has to decide how to proceed. When they ask about progress or procedure, answer that question and let them choose when to resume. Stop or switch tasks when asked.
-
-## Judge the evidence
-
-Track each ability separately in a full session.
-
-| Level | What the learner has shown |
+| Level | Demonstrated ability |
 | --- | --- |
-| 0 | The idea is new to them |
-| 1 | They recognize it |
-| 2 | They can follow a worked example |
-| 3 | They can apply it with help |
-| 4 | They can apply it independently |
-| 5 | They can explain the method and adapt it to an unfamiliar constraint |
+| 0 | New to the idea |
+| 1 | Recognizes it |
+| 2 | Follows a worked example |
+| 3 | Applies it with help |
+| 4 | Applies it independently |
+| 5 | Explains and adapts it to an unfamiliar constraint |
 
-Mark untested abilities as unassessed. For level 4, look for two distinct tasks solved without hints, including one where the learner chose the method. For level 5, identify what the learner explained and which part of their usual reasoning they had to adapt. Record what help was given.
+Keep each untested subskill unassessed. For level 4, require two distinct unaided tasks, including one where the learner chose the method. For level 5, identify the explanation and the adaptation.
 
-## Show the mastery map
+Pick one focus with the learner: a missing prerequisite, an untested skill, or a judgment that needs confirmation. Ask one question and wait. Check the reasoning as well as the result. If a step is faulty, probe that step. Offer a hint for a familiar idea or explain an unfamiliar one. Give a requested answer or clarification directly.
 
-Show it at the end of a trial, after placement, when a level changes, at the end of a final assessment, and on request. Keep the ability names and order stable so the learner can see what changed.
+Update only the subskills the response demonstrates. Record any help and check the idea later in a fresh case. Move on when a subskill reaches target. Reopen it if later work exposes a gap. Answer questions about the process and honor requests to stop or switch.
 
-For each update, prepare one [assessment record](references/mastery-map.md) in the learner's language. Mark the current level only when supported by evidence. Label a provisional rating, attach one concrete observation to each ability, and leave unassessed abilities ungraded.
+## Report progress and finish
 
-Use the bundled renderer for every map. In a terminal, show its colored staircase and ability marks directly. In a chat with inline visuals, display its interactive fragment. For other chats, phones, and sharing, give the learner the self-contained HTML file. Choose the format the learner asks for when they specify one.
+Keep one local [assessment record](references/mastery-map.md) with stable rows. Update the evidence and focus in place. During practice, report a changed level in one line, then continue. If the level holds, just respond to the answer.
 
-## Close the session
+Render the full map after placement, at the end of a trial or final assessment, and on request. Each row shows one subskill and its level or observed status. Mark the next focus. In a terminal use the compact color view. For chat or a browser, render to a file and show the result directly.
 
-Once every ability reaches the agreed target (level 4 by default), use fresh work for the final assessment. A single problem can cover several abilities if the learner demonstrates each one. Ask another question only for an ability the final work has yet to establish. If help was needed, revisit that part and recheck it independently.
-
-After a pass, report the level each task assessed. A higher rating requires a task that specifically tests the higher level. Point to one decision the learner handled well, then finish. For a demonstration of the ending, label the result as simulated and leave the learner's recorded levels intact. On request, provide a brief handoff with the goal, evidence so far, and next check.
+When every subskill reaches target (default 4), assess them with fresh work. One task can cover several. Recheck only remaining gaps. On passing, report the supported levels and finish. Label simulated endings explicitly. On request, summarize the goal, evidence and next check for a handoff.

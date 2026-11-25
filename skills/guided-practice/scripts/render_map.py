@@ -21,7 +21,7 @@ DEFAULT_LEVELS = [
 LABELS = {
     "lang": "en", "summary": "", "scale_label": "Mastery scale",
     "evidence_label": "Skills and evidence", "current_label": "Current",
-    "goal_label": "Goal",
+    "goal_label": "Goal", "focus_label": "Focus", "check_label": "Next check",
 }
 
 
@@ -54,45 +54,65 @@ def load_map(raw):
         if entry["state"] not in ("guided", "observed", "unassessed"):
             raise ValueError("state must be guided, observed, or unassessed")
         entry["level"] = grade(item.get("level"), "ability level")
+        entry["focus"] = item.get("focus", False)
+        if type(entry["focus"]) is not bool:
+            raise ValueError("ability focus must be true or false")
+        entry["next_check"] = string(item.get("next_check", ""), "next_check")
         if entry["state"] == "unassessed" and entry["level"] is not None:
             raise ValueError("an unassessed ability must have a null or omitted level")
         data["abilities"].append(entry)
+    if sum(a["focus"] for a in data["abilities"]) > 1:
+        raise ValueError("select one focus at a time")
     return data
 
 
 def web_map(data, standalone):
     esc = html.escape
-    selected = next((n for n in (data["current"], data["goal"]) if n is not None), 0)
+    goal = data["goal"]
+    selected = next((n for n in (goal, data["current"]) if n is not None), 0)
     steps, meanings, abilities = [], [], []
     for n, level in enumerate(data["levels"]):
-        roles, classes = [], ["gp-step"]
-        for key in ("current", "goal"):
-            if n == data[key]:
-                roles.append(esc(data[key + "_label"]))
-                classes.append("is-" + key)
+        roles = [esc(data[key + "_label"]) for key in ("current", "goal") if n == data[key]]
         checked = " checked" if n == selected else ""
         steps.append(
-            f'<div class="{" ".join(classes)}" style="--step:{n}">'
+            '<div class="gp-step">'
             f'<input class="gp-choice" type="radio" name="gp-level" id="gp-level-{n}"{checked}>'
-            f'<label for="gp-level-{n}"><span class="gp-bar"><span class="gp-n">{n}</span></span>'
-            f'<span class="gp-name">{esc(level["label"])}</span><span class="gp-role">{" · ".join(roles)}</span>'
+            f'<label for="gp-level-{n}"><b>{n}</b> {esc(level["label"])}'
+            f'<span class="gp-role">{" · ".join(roles)}</span>'
             f'</label></div>'
         )
-        meanings.append(f'<p class="gp-meaning" data-level="{n}">{esc(level["meaning"])}</p>')
-    for i, a in enumerate(data["abilities"]):
-        meter = ""
-        if a["level"] is not None:
-            score = a["level"]
-            marks = "".join('<i class="is-filled"></i>' if n < score else "<i></i>" for n in range(5))
-            meter = f'<span class="gp-level-meter" aria-hidden="true">{marks}</span> {score}/5 · '
-        opened = " open" if i == 0 else ""
+        meanings.append(f'<p class="gp-meaning" data-level="{n}"><b>{n}</b> · {esc(level["meaning"])}</p>')
+    for ability in data["abilities"]:
+        score = ability["level"]
+        cells = []
+        for n in range(1, 6):
+            classes = ["gp-cell"]
+            if score is not None and n <= score:
+                classes.append("is-score" if n == score else "is-past")
+            if n == goal:
+                classes.append("is-goal")
+            cells.append(f'<span class="{" ".join(classes)}"></span>')
+        focus = ability["focus"]
+        focus_label = f' <small class="gp-focus-label">{esc(data["focus_label"])}</small>' if focus else ""
+        check = ""
+        if ability["next_check"]:
+            check = (f'<span class="gp-check"><strong>{esc(data["check_label"])}</strong> · '
+                     f'{esc(ability["next_check"])}</span>')
         abilities.append(
-            f'<details class="gp-ability" data-state="{a["state"]}"{opened}><summary>'
-            f'<span class="gp-mark" aria-hidden="true"></span><span class="gp-ability-name">{esc(a["name"])}</span>'
-            f'<span class="gp-status">{meter}{esc(a["status"])}</span></summary><p>{esc(a["evidence"])}</p></details>'
+            f'<details class="gp-ability{" is-focus" if focus else ""}" data-state="{ability["state"]}"><summary>'
+            f'<span class="gp-info"><b>{esc(ability["name"])}</b>{focus_label} '
+            f'<small class="gp-status">{esc(ability["status"])}</small></span> '
+            f'<span class="gp-score">{f"{score}/5" if score is not None else "—"}</span>'
+            f'<span class="gp-strip{" is-unscored" if score is None else ""}" aria-hidden="true">{"".join(cells)}</span>'
+            f'{check if focus else ""}</summary>'
+            f'<div class="gp-observation"><p>{esc(ability["evidence"])}</p>{"" if focus else check}</div></details>'
         )
+    goal_key = ""
+    if goal is not None:
+        goal_key = (f'<span class="gp-goal-key">{esc(data["goal_label"])} {goal}/5 · '
+                    f'{esc(data["levels"][goal]["label"])}</span>')
     fields = {key.upper(): esc(data[key]) for key in ("topic", "lang", "summary", "scale_label", "evidence_label")}
-    fields.update(STEPS="\n".join(steps), MEANINGS="\n".join(meanings), ABILITIES="\n".join(abilities))
+    fields.update(GOAL_KEY=goal_key, STEPS="\n".join(steps), MEANINGS="\n".join(meanings), ABILITIES="\n".join(abilities))
     fragment = re.sub(r"@@([A-Z_]+)@@", lambda m: fields[m[1]], TEMPLATE.read_text(encoding="utf-8"))
     if not standalone:
         return fragment
@@ -110,6 +130,7 @@ def main():
     parser.add_argument("--color", choices=("auto", "always", "never"), default="auto")
     parser.add_argument("--width", type=int, help="terminal width in columns")
     parser.add_argument("--inspect", type=int, choices=range(6), help="inspect a level in the terminal")
+    parser.add_argument("--detail", metavar="ABILITY", help="show the evidence for a named ability in the terminal")
     parser.add_argument("--ascii", action="store_true", help="use ASCII graph marks in the terminal")
     args = parser.parse_args()
     try:
@@ -128,7 +149,7 @@ def main():
             if width <= 0:
                 raise ValueError("width must be positive")
             output = render_terminal(data, width=width, color=color, ascii_only=args.ascii,
-                                     inspect_level=args.inspect)
+                                     inspect_level=args.inspect, detail=args.detail)
         else:
             output = web_map(data, standalone=args.format == "html")
         if args.output:
