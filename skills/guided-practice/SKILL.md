@@ -38,4 +38,4 @@ Mark untested abilities as unassessed. For level 4, look for two distinct tasks 
 
 Once every ability reaches the agreed target (level 4 by default), use fresh work for the final assessment. A single problem can cover several abilities if the learner demonstrates each one. Ask another question only for an ability the final work has yet to establish. If help was needed, revisit that part and recheck it independently.
 
-After a pass, report the supported levels, point to one decision the learner handled well, and finish. For a demonstration of the ending, label the result as simulated and leave the learner's recorded levels intact. On request, provide a brief handoff with the goal, evidence so far, and next check.
+After a pass, report the level each task assessed. A higher rating requires a task that specifically tests the higher level. Point to one decision the learner handled well, then finish. For a demonstration of the ending, label the result as simulated and leave the learner's recorded levels intact. On request, provide a brief handoff with the goal, evidence so far, and next check.
