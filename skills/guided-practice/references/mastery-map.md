@@ -12,19 +12,27 @@ The renderer uses Python 3.9 or later and the standard library. Run these comman
 | `lang`, `goal_label`, `scale_label`, `evidence_label`, `focus_label`, `check_label` | Optional language tag and localized display labels. |
 | `levels` | Optional list of six objects with a short `label` and a one-sentence `meaning`, ordered 0–5. Supply these and the display labels for languages other than English. |
 
-Draw in the current terminal:
+Draw in the current terminal.
 
 ```sh
 python3 scripts/render_map.py session.json
 ```
 
-The terminal uses one compact row per subskill. Use `--detail "Ability name"` for its evidence or `--inspect 4` for the level definition. The display adapts to the terminal width and respects `NO_COLOR`. Override with `--width 48`, `--ascii`, or `--color always` as needed. Use `-` to read a record from stdin.
+On a Mac or Linux terminal, use ↑/↓ or J/K to select a subskill, Return or Space to toggle its evidence, and Q to quit. The practice focus stays on the same subskill while you inspect others. For a compact snapshot, use `--once` or pipe the output. Use `--detail "Ability name"` for one row's evidence or `--inspect 4` for a level definition. The display follows the terminal width and `NO_COLOR`, with overrides for `--width`, `--ascii` and `--color`. Use `-` to read a record from stdin.
 
-Generate a standalone page for a phone or browser, or a fragment for an inline chat surface:
+To share the terminal view, export a self-contained file alongside the record.
+
+```sh
+python3 scripts/render_map.py session.json --format command --output mastery.command
+```
+
+Double-click the exported file on macOS, or run `sh /path/to/mastery.command` in a POSIX shell. On a Mac you can display it in a new terminal with `open -a Terminal /path/to/mastery.command`. Give the learner the actual path, quoted when needed. The exported view works offline with the system shell and includes the scores at export time.
+
+Generate a standalone page for a phone or browser, or a fragment for an inline chat surface.
 
 ```sh
 python3 scripts/render_map.py session.json --format html --output mastery.html
 python3 scripts/render_map.py session.json --format fragment --output mastery-fragment.html
 ```
 
-The standalone page opens offline. Expand an ability to see its evidence. Keep the record between turns and render it when the learner needs the full picture.
+Link to the generated page. It opens offline and each ability expands to show its evidence. The bundled `assets/mastery-map.html` also opens on its own and lets the reader choose a local record.

@@ -34,6 +34,6 @@ Update only the subskills the response demonstrates. Record any help and check t
 
 Keep one local [assessment record](references/mastery-map.md) with stable rows. Update the evidence and focus in place. During practice, report a changed level in one line, then continue. If the level holds, just respond to the answer.
 
-Render the full map after placement, at the end of a trial or final assessment, and on request. Each row shows one subskill and its level or observed status. Mark the next focus. In a terminal use the compact color view. For chat or a browser, render to a file and show the result directly.
+Show the full map after placement, at the end of a trial or final assessment, and on request. Mark one row per subskill with its level or observed status, and point to the next focus. In a visible terminal, run the compact color view. When a learner asks for the terminal from chat, generate a standalone terminal file from their record and give them a runnable command. On their Mac, open it in Terminal when they ask to see it. For a web or inline view, share the populated report.
 
 When every subskill reaches target (default 4), assess them with fresh work. One task can cover several. Recheck only remaining gaps. On passing, report the supported levels and finish. Label simulated endings explicitly. On request, summarize the goal, evidence and next check for a handoff.
