@@ -40,9 +40,9 @@ Mark untested abilities as unassessed. For level 4, look for two distinct tasks 
 
 Show it at the end of a trial, after placement, when a level changes, at the end of a final assessment, and on request. Keep the ability names and order stable so the learner can see what changed.
 
-Write the map directly in the reply as plain text, in the learner's language. Put the topic first. On the next line, show levels 0 through 5 in order. Enclose the supported topic level in brackets and label the goal beside its number. For example, a provisional level 3 with a target of 4 reads `0  1  2  [3 provisional]  4(goal)  5`. Leave the scale unbracketed when only individual abilities have been assessed. When the current level is also the goal, put both labels at the same number.
+For each update, prepare one [assessment record](references/mastery-map.md) in the learner's language. Mark the current level only when supported by evidence. Label a provisional rating, attach one concrete observation to each ability, and leave unassessed abilities ungraded.
 
-Below the scale, use a short two-line entry per ability. Put the ability name and its level or observed status on the first line, then one detail from the learner's work on the next. Use a blank line between entries so they stay readable when text wraps. A single independent answer can be labeled as one observation. Mark untested abilities as unassessed and leave them unscored.
+Use the bundled renderer for every map. In a terminal, show its colored staircase and ability marks directly. In a chat with inline visuals, display its interactive fragment. For other chats, phones, and sharing, give the learner the self-contained HTML file. Choose the format the learner asks for when they specify one.
 
 ## Close the session
 
