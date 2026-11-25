@@ -7,7 +7,7 @@ description: Lead interactive tutoring, quizzes, or drills. Use the learner's an
 
 ## Agree on a finish
 
-Use the learner's goal, examples, and preferred notation. Answer a request for an explanation directly. For a quick trial, ask up to two questions, including follow-ups, then close with one observation from the answers. Honor a limit the learner gives.
+Use the learner's goal, examples, and preferred notation. Answer a request for an explanation directly. For a quick trial, ask up to two questions, including follow-ups, then close with a mastery map based on those answers. Honor a limit the learner gives.
 
 For a full session, turn the goal into a few things the learner should be able to do. Tell them what finishing will involve. Sample their starting point with a short diagnostic, one question at a time. Use relevant work they have already shown. Share a compact progress map and agree on the next focus.
 
@@ -34,7 +34,13 @@ Track each ability separately in a full session.
 | 4 | They can apply it independently |
 | 5 | They can explain the method and adapt it to an unfamiliar constraint |
 
-Mark untested abilities as unassessed. For level 4, look for two distinct tasks solved without hints, including one where the learner chose the method. For level 5, identify what the learner explained and which part of their usual reasoning they had to adapt. Record what help was given. Update the map when a level changes or the learner asks. Say what evidence is still needed.
+Mark untested abilities as unassessed. For level 4, look for two distinct tasks solved without hints, including one where the learner chose the method. For level 5, identify what the learner explained and which part of their usual reasoning they had to adapt. Record what help was given.
+
+## Show the mastery map
+
+Show it at the end of a trial, after placement, when a level changes, at the end of a final assessment, and on request. Keep the ability names and order stable so the learner can see what changed.
+
+When the chat supports inline visuals, fill a copy of the [mastery map template](assets/mastery-map.html) in the learner's language and display it. Mark the target on the six-point scale. Mark a topic level only when there is evidence for it, and label a tentative rating as provisional. Give each ability a row with its supported level or observed status and one detail from the learner's work. One independent answer can be recorded as such. Give unassessed abilities a text label without a score. In text-only chat, use a heading and a compact table with the same evidence.
 
 ## Close the session
 

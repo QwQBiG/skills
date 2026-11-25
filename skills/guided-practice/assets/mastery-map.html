@@ -1,0 +1,147 @@
+<style>
+  .gp-map {
+    color-scheme: light dark;
+    --gp-surface: var(--background, Canvas);
+    --gp-ink: var(--foreground, CanvasText);
+    --gp-secondary: color-mix(in srgb, var(--gp-ink) 77%, var(--gp-surface));
+    --gp-rule: var(--border, color-mix(in srgb, var(--gp-ink) 22%, var(--gp-surface)));
+    --gp-series: var(--viz-series-1, light-dark(#237769, #8bd3bc));
+    container-type: inline-size;
+    box-sizing: border-box;
+    max-inline-size: 48rem;
+    padding: clamp(0.75rem, 3%, 1.5rem);
+    color: var(--gp-ink);
+    font-family: var(--font-sans, system-ui, sans-serif);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+  .gp-map h2 {
+    margin: 0;
+    font-size: clamp(1.25rem, 4cqi, 1.8rem);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .gp-map .gp-score {
+    margin: 0.35rem 0 0;
+    color: var(--gp-secondary);
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .gp-map .gp-levels, .gp-map .gp-abilities {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .gp-map .gp-levels {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: clamp(0.15rem, 1.3cqi, 0.7rem);
+    position: relative;
+    isolation: isolate;
+    margin-block: 1.5rem 0.6rem;
+    padding-block-end: 1rem;
+    border-block-end: 1px solid var(--gp-rule);
+  }
+  .gp-map .gp-levels::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0.875rem 8.33% auto;
+    block-size: 1px;
+    background: var(--gp-rule);
+  }
+  .gp-map .gp-levels > li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    text-align: center;
+    font-size: clamp(0.75rem, 2.15cqi, 0.88rem);
+    line-height: 1.3;
+  }
+  .gp-map .gp-number {
+    display: grid;
+    place-items: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--gp-ink) 8%, var(--gp-surface));
+    color: var(--gp-secondary);
+    font-size: 0.9rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+  .gp-map .gp-levels > li:has(.gp-current) .gp-number {
+    background: color-mix(in srgb, var(--gp-series) 30%, var(--gp-surface));
+    box-shadow: inset 0 0 0 2px var(--gp-series);
+    color: var(--gp-ink);
+  }
+  .gp-map .gp-levels > li:has(.gp-target) .gp-number {
+    outline: 1px dashed var(--gp-secondary);
+    outline-offset: 1px;
+  }
+  .gp-map .gp-current, .gp-map .gp-target {
+    max-inline-size: 100%;
+    font-size: 0.75rem;
+    font-weight: 650;
+  }
+  .gp-map .gp-abilities > li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) fit-content(44%);
+    align-items: baseline;
+    gap: 0.2rem 0.8rem;
+    padding-block: 0.8rem;
+  }
+  .gp-map .gp-abilities > li + li {
+    border-block-start: 1px solid var(--gp-rule);
+  }
+  .gp-map .gp-status {
+    justify-self: end;
+    color: var(--gp-ink);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .gp-map .gp-evidence {
+    grid-column: 1 / -1;
+    color: var(--gp-secondary);
+    font-size: 0.9rem;
+  }
+  @container (min-width: 32rem) {
+    .gp-map .gp-abilities > li {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 2fr);
+    }
+    .gp-map .gp-status { justify-self: start; }
+    .gp-map .gp-evidence { grid-column: auto; }
+  }
+</style>
+
+<!-- Localize all labels, including accessible list names. HTML-escape inserted text and attributes. -->
+<section class="gp-map" aria-label="{{map_label}}">
+  <h2>{{topic}}</h2>
+  <!-- Use an existing assessment in its own words. Remove this paragraph when no score was given. -->
+  <p class="gp-score">{{score_line}}</p>
+
+  <!-- Keep the six levels in order and use short names for the narrow layout.
+       For the supported current level, add aria-current="step" to its li and append
+       <span class="gp-current">{{current_label}}</span> inside the same li.
+       For an agreed target, append <span class="gp-target">{{target_label}}</span> inside its li.
+       Both labels can belong to one level. Omit each mark when its value is unknown or inapplicable. -->
+  <ol class="gp-levels" role="list" aria-label="{{scale_label}}">
+    <li><span class="gp-number">0</span><span>{{level_0_name}}</span></li>
+    <li><span class="gp-number">1</span><span>{{level_1_name}}</span></li>
+    <li><span class="gp-number">2</span><span>{{level_2_name}}</span></li>
+    <li><span class="gp-number">3</span><span>{{level_3_name}}</span></li>
+    <li><span class="gp-number">4</span><span>{{level_4_name}}</span></li>
+    <li><span class="gp-number">5</span><span>{{level_5_name}}</span></li>
+  </ol>
+
+  <ul class="gp-abilities" role="list" aria-label="{{abilities_label}}">
+    <!-- Copy this li once per ability. Use the observed result and one sentence of evidence
+         from the learner's work. For an unassessed ability, identify what remains to be checked. -->
+    <li>
+      <strong>{{ability_name}}</strong>
+      <span class="gp-status">{{ability_status}}</span>
+      <span class="gp-evidence">{{evidence}}</span>
+    </li>
+  </ul>
+</section>
