@@ -1,116 +1,271 @@
+<!doctype html>
+<html lang="en" data-gp-page>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Mastery map</title>
 <style>
+  html[data-gp-page] { color-scheme: light dark; background: #f2f5fa; }
+  html[data-gp-page] body { margin: 0; padding: clamp(1.1rem, 5vw, 4rem) clamp(.8rem, 4vw, 2rem); }
   #gp-mastery {
-    --paper: var(--color-background-primary, #fbfaf6);
-    --ink: var(--color-text-primary, #202d32);
-    --muted: var(--color-text-secondary, #536268);
-    --line: color-mix(in srgb, var(--ink) 21%, var(--paper));
-    --wash: color-mix(in srgb, var(--ink) 5%, var(--paper));
-    --focus: color-mix(in srgb, #338d80 55%, var(--ink));
-    --serif: "Spectral", "Iowan Old Style", "Songti SC", Georgia, serif;
+    --ink: var(--foreground, #192842); --quiet: var(--muted-foreground, #495b76);
+    --line: var(--border, #c5cfdd); --track: #c7d2e2;
+    --cyan: #006d88; --violet: #6550b4; --amber: #925900; --row: #e2edf5;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    max-width: 48rem; margin-inline: auto; container-type: inline-size; color: var(--ink);
     font: 400 1rem/1.45 "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    container: gp-mastery / inline-size;
-    width: 100%; max-width: 52rem; margin-inline: auto; text-align: start; overflow-wrap: anywhere;
-    color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+    overflow-wrap: anywhere; text-align: start;
   }
   @media (prefers-color-scheme: dark) {
+    html[data-gp-page] { background: #111827; }
     #gp-mastery {
-      --paper: var(--color-background-primary, #1b2326); --ink: var(--color-text-primary, #f0f0ea);
-      --muted: var(--color-text-secondary, #c0caca);
+      --ink: var(--foreground, #e6f0ff); --quiet: var(--muted-foreground, #a6b7ce);
+      --line: var(--border, #34445b); --track: #34455f;
+      --cyan: #5de2e8; --violet: #b6a1ff; --amber: #ffd07e; --row: #1b3041;
     }
   }
-  #gp-mastery, #gp-mastery *, #gp-mastery *::after { box-sizing: border-box; }
-  #gp-mastery .gp-sheet { padding: clamp(.85rem, 4cqi, 2rem); }
-  #gp-mastery :is(h2, h3, p) { margin: 0; color: inherit; }
-  #gp-mastery h2 { font: 500 clamp(1.65rem, 5cqi, 2.5rem)/1.18 var(--serif); text-wrap: balance; }
-  #gp-mastery header p { margin-top: .45rem; max-width: 66ch; color: var(--muted); }
-  #gp-mastery header p:empty { display: none; }
+  #gp-mastery *, #gp-mastery *::before, #gp-mastery *::after { box-sizing: border-box; }
+  #gp-mastery [hidden] { display: none !important; }
+  #gp-mastery :is(h1,h2,p,ol) { margin: 0; color: inherit; }
+  #gp-mastery h1 { display: flex; gap: .5em; align-items: baseline; font: 650 clamp(1.45rem, 4.4cqi, 2.05rem)/1.25 var(--mono); }
+  #gp-mastery h1::before { content: ""; flex: 0 0 .67em; height: .66em; background: var(--cyan); clip-path: polygon(0 0, 26% 0, 68% 50%, 26% 100%, 0 100%, 42% 50%); }
+  #gp-mastery .gp-caption, #gp-mastery .gp-intro p { margin-top: .45rem; color: var(--quiet); }
+  #gp-mastery .gp-heading, #gp-mastery .gp-tools {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .3rem .75rem;
+  }
   #gp-mastery .gp-heading {
-    display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .3rem 1rem;
-    margin: 1.3rem 0 0; padding-bottom: .55rem; border-bottom: 1px solid var(--ink);
+    margin-top: 1.35rem; padding: .4rem .5rem; border-block: 1px solid var(--line);
+    font: 500 .86rem/1.5 var(--mono);
   }
-  #gp-mastery h3 { font: 500 clamp(1.2rem, 3cqi, 1.45rem)/1.3 var(--serif); }
-  #gp-mastery .gp-goal-key { color: var(--muted); font-size: .85rem; }
-  #gp-mastery .gp-goal-key::before {
-    content: ""; display: inline-block; width: 1em; height: .78em; margin-inline-end: .4em;
-    border: 2px dashed currentColor; border-radius: 2px; vertical-align: -.04em;
-  }
-  #gp-mastery .gp-ability {
-    --accent: #79898d; --strong: color-mix(in srgb, var(--accent) 55%, var(--ink));
-    border-bottom: 1px solid var(--line);
-  }
-  #gp-mastery [data-state="observed"] { --accent: #179780; }
-  #gp-mastery [data-state="guided"] { --accent: #d38a37; }
-  #gp-mastery .is-focus { background: color-mix(in srgb, var(--focus) 7%, var(--paper)); }
-  #gp-mastery summary { cursor: pointer; color: inherit; }
-  #gp-mastery .gp-ability summary {
-    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) 2.3rem .65rem;
-    align-items: center; gap: .4rem .75rem; padding: .75rem .6rem; list-style: none;
+  #gp-mastery h2 { font: inherit; font-weight: 650; }
+  #gp-mastery .gp-key, #gp-mastery .gp-status, #gp-mastery .gp-check, #gp-mastery .gp-scale li { color: var(--quiet); }
+  #gp-mastery .gp-key span + span::before { content: " · "; }
+  #gp-mastery .gp-goal::before { content: ""; display: inline-block; margin-inline: .1em .42em; width: 2px; height: .85em; background: var(--amber); vertical-align: -.08em; }
+  #gp-mastery .gp-ability { border-bottom: 1px solid var(--line); --bar: var(--cyan); }
+  #gp-mastery [data-state="guided"] { --bar: var(--violet); }
+  #gp-mastery summary { cursor: pointer; color: var(--ink); }
+  #gp-mastery .gp-ability > summary {
+    display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(3rem, 6.6rem) 2.6rem .6rem;
+    align-items: center; gap: .1rem .65rem; padding: .57rem .5rem; list-style: none;
   }
   #gp-mastery .gp-ability summary::-webkit-details-marker { display: none; }
   #gp-mastery .gp-ability summary::after {
-    content: ""; grid-area: 1 / 4; width: .45rem; height: .45rem; justify-self: center;
-    border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+    content: ""; grid-area: 1 / 5; width: .4rem; height: .4rem; justify-self: center;
+    border: solid var(--quiet); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg);
   }
-  #gp-mastery .gp-ability[open] summary::after { transform: rotate(225deg); }
-  #gp-mastery summary:focus-visible, #gp-mastery .gp-choice:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 1px; }
-  #gp-mastery .gp-info { grid-area: 1 / 1; }
-  #gp-mastery .gp-focus-label { color: var(--focus); font-weight: 700; font-size: .78rem; }
-  #gp-mastery .gp-status { display: block; margin-top: .15rem; color: var(--strong); font-size: .86rem; }
-  #gp-mastery .gp-score { grid-area: 1 / 3; color: var(--strong); font-weight: 700; text-align: end; font-variant-numeric: tabular-nums; }
-  #gp-mastery .gp-strip { grid-area: 1 / 2; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .2rem; align-self: center; }
-  #gp-mastery .gp-cell {
-    position: relative; height: .62rem;
-    border-radius: 3px; background: var(--wash); color: var(--muted);
+  #gp-mastery .gp-ability[open] summary::after { transform: rotate(45deg); }
+  #gp-mastery .is-focus > summary { box-shadow: inset 3px 0 var(--cyan); background: var(--row); }
+  #gp-mastery .gp-ability > summary:focus-visible { outline: 2px solid var(--violet); outline-offset: -2px; }
+  #gp-mastery .gp-name { font-weight: 650; }
+  #gp-mastery .gp-focus { display: inline-block; margin-inline-start: .55em; color: var(--cyan); font: 650 .78rem/1.4 var(--mono); }
+  #gp-mastery .gp-status, #gp-mastery .gp-check, #gp-mastery .gp-observation { font-size: .88rem; }
+  #gp-mastery .gp-status { grid-area: 1 / 2; }
+  #gp-mastery .gp-meter { position: relative; grid-area: 1 / 3; height: 7px; }
+  #gp-mastery .gp-meter::before {
+    content: ""; display: block; height: 100%;
+    background: linear-gradient(to right, var(--bar) calc(var(--score) * 20%), var(--track) 0);
+    mask-image: repeating-linear-gradient(to right, #000 0 calc(20% - 2px), transparent calc(20% - 2px) 20%);
   }
-  #gp-mastery .gp-cell.is-past { background: color-mix(in srgb, var(--accent) 65%, var(--paper)); color: var(--ink); }
-  #gp-mastery .gp-cell.is-score { background: var(--strong); color: var(--paper); }
-  #gp-mastery .gp-strip.is-unscored { height: .62rem; background: linear-gradient(90deg, var(--line) 45%, transparent 45%) left center / 7px 1px repeat-x; }
-  #gp-mastery .gp-strip.is-unscored .gp-cell { visibility: hidden; }
-  #gp-mastery .gp-cell.is-goal::after { content: ""; position: absolute; inset: -2px 0; border: 1px dashed var(--muted); border-radius: 2px; }
-  #gp-mastery .gp-check, #gp-mastery .gp-observation { color: var(--muted); font-size: .89rem; }
-  #gp-mastery .gp-check { display: block; grid-column: 1 / -1; }
-  #gp-mastery .gp-observation { padding: 0 .6rem .75rem; }
-  #gp-mastery .gp-observation .gp-check { margin-top: .35rem; }
-  #gp-mastery .gp-scale > summary { padding: .8rem 0 .5rem; font-weight: 600; }
-  #gp-mastery .gp-steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .3rem; }
-  #gp-mastery .gp-choice { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
-  #gp-mastery .gp-step label { display: block; height: 100%; padding: .4rem; border: 1px solid var(--line); border-radius: 4px; font-size: .84rem; cursor: pointer; }
-  #gp-mastery .gp-choice:checked + label { background: var(--wash); border-color: var(--ink); }
-  #gp-mastery .gp-role { display: block; color: var(--muted); font-size: .76rem; }
-  #gp-mastery .gp-meaning { margin-top: .45rem; color: var(--muted); font-size: .9rem; }
-  @supports selector(:has(*)) {
-    #gp-mastery .gp-meaning { display: none; }
-    #gp-mastery:has(#gp-level-0:checked) .gp-meaning[data-level="0"],
-    #gp-mastery:has(#gp-level-1:checked) .gp-meaning[data-level="1"],
-    #gp-mastery:has(#gp-level-2:checked) .gp-meaning[data-level="2"],
-    #gp-mastery:has(#gp-level-3:checked) .gp-meaning[data-level="3"],
-    #gp-mastery:has(#gp-level-4:checked) .gp-meaning[data-level="4"],
-    #gp-mastery:has(#gp-level-5:checked) .gp-meaning[data-level="5"] { display: block; }
+  #gp-mastery .gp-meter.has-goal::after {
+    content: ""; position: absolute; left: clamp(0px, calc(var(--goal) * 20% - 2px), calc(100% - 2px));
+    top: -3px; height: 13px; width: 2px; background: var(--amber);
   }
-  @container gp-mastery (max-width: 32rem) {
-    #gp-mastery .gp-ability summary { grid-template-columns: minmax(0, 1fr) 2.3rem .65rem; }
-    #gp-mastery .gp-score { grid-area: 1 / 2; }
-    #gp-mastery .gp-ability summary::after { grid-area: 1 / 3; }
-    #gp-mastery .gp-strip { grid-area: 2 / 1 / 3 / -1; }
-    #gp-mastery .gp-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #gp-mastery .gp-score { grid-area: 1 / 4; text-align: end; font: 650 .95rem/1.4 var(--mono); }
+  #gp-mastery .gp-score.unscored { color: var(--quiet); }
+  #gp-mastery .gp-check { grid-column: 1 / -1; }
+  #gp-mastery .gp-check b { font-weight: 600; }
+  #gp-mastery .gp-observation { margin: .35rem .55rem .6rem; padding-inline-start: .65rem; border-inline-start: 2px solid var(--violet); }
+  #gp-mastery .gp-tools { padding: .45rem .5rem 0; }
+  #gp-mastery .gp-scale { flex: 1 1 11rem; }
+  #gp-mastery .gp-scale summary { width: fit-content; padding: .25rem 0; color: var(--quiet); font: 500 .85rem/1.5 var(--mono); }
+  #gp-mastery .gp-scale ol { padding-inline-start: 1.6rem; font-size: .87rem; }
+  #gp-mastery .gp-scale li { margin: .25rem 0; }
+  #gp-mastery .gp-scale li b { color: var(--ink); }
+  #gp-mastery .gp-shortcuts { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem; font: 400 .78rem/1.5 var(--mono); color: var(--quiet); }
+  #gp-mastery kbd { padding: 0 .23rem; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 3px; font: inherit; color: var(--ink); }
+  #gp-mastery .gp-intro { margin-bottom: 1rem; }
+  #gp-mastery #gp-report:not([hidden]) + #gp-import { margin: 1rem .5rem 0; }
+  #gp-mastery .gp-open {
+    position: relative; display: inline-flex; align-items: center; padding: .43rem .7rem;
+    border: 1px solid var(--cyan); border-radius: .2rem; color: var(--cyan); font: 600 .9rem/1.45 var(--mono);
+  }
+  #gp-mastery .gp-open:focus-within, #gp-mastery .gp-scale summary:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+  #gp-mastery input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+  #gp-mastery #gp-error:not(:empty) { margin-top: .6rem; color: var(--amber); }
+  @container (max-width: 32rem) {
+    #gp-mastery .gp-ability > summary { grid-template-columns: minmax(0, 1fr) 3.1rem 2.2rem .5rem; column-gap: .4rem; }
+    #gp-mastery .gp-status { grid-area: 2 / 1 / 3 / -1; }
+    #gp-mastery .gp-meter { grid-area: 1 / 2; }
+    #gp-mastery .gp-score { grid-area: 1 / 3; }
+    #gp-mastery .gp-ability summary::after { grid-area: 1 / 4; }
+  }
+  @media (pointer: coarse) {
+    #gp-mastery :is(.gp-ability > summary,.gp-scale summary,.gp-open) { min-height: 44px; }
+    #gp-mastery .gp-shortcuts { display: none; }
   }
   @media (forced-colors: active) {
-    #gp-mastery .gp-cell.is-past { border-bottom: 3px solid CanvasText; }
-    #gp-mastery .gp-cell.is-score { forced-color-adjust: none; background: Highlight; color: HighlightText; }
-    #gp-mastery .gp-choice:checked + label { outline: 2px solid Highlight; }
+    #gp-mastery .gp-meter { forced-color-adjust: none; --bar: Highlight; --track: GrayText; --amber: CanvasText; }
+    #gp-mastery .is-focus > summary { border-inline-start: 3px solid Highlight; }
   }
 </style>
-<section id="gp-mastery" lang="@@LANG@@" aria-labelledby="gp-topic">
-  <div class="gp-sheet">
-    <header><h2 id="gp-topic">@@TOPIC@@</h2><p>@@SUMMARY@@</p></header>
-    <section aria-labelledby="gp-evidence-title">
-      <div class="gp-heading"><h3 id="gp-evidence-title">@@EVIDENCE_LABEL@@</h3>@@GOAL_KEY@@</div>
-      @@ABILITIES@@
-    </section>
-    <details class="gp-scale">
-      <summary>@@SCALE_LABEL@@</summary>
-      <div class="gp-steps" role="radiogroup" aria-label="@@SCALE_LABEL@@">@@STEPS@@</div>
-      <div class="gp-meanings" aria-live="polite" aria-atomic="true">@@MEANINGS@@</div>
-    </details>
+<section id="gp-mastery">
+  <article id="gp-report" aria-labelledby="gp-topic" hidden></article>
+  <div id="gp-import">
+    <header class="gp-intro">
+      <h1>Mastery map</h1>
+      <p>Open your practice record to see each skill, its level and the evidence behind it.</p>
+    </header>
+    <label class="gp-open"><span>Open session.json</span><input type="file" accept=".json,application/json"></label>
+    <p id="gp-error" role="alert"></p>
   </div>
+  <template id="gp-layout">
+    <header><h1 id="gp-topic">{{topic}}</h1>{{#summary}}<p class="gp-caption">{{summary}}</p>{{/summary}}</header>
+    <div class="gp-heading">
+      <h2>{{evidence_label}}</h2>
+      <span class="gp-key">{{#current}}<span>{{current_label}} {{current}}/5</span>{{/current}}{{#goal}}<span class="gp-goal">{{goal_label}} {{goal}}/5 · {{goal_name}}</span>{{/goal}}</span>
+    </div>
+    {{#abilities}}
+    <details class="gp-ability{{#focus}} is-focus{{/focus}}" data-state="{{state}}">
+      <summary>
+        <span><b class="gp-name">{{name}}</b>{{#focus}}<span class="gp-focus">{{focus_label}}</span>{{/focus}}</span>
+        <span class="gp-status">{{status}}</span>
+        {{#level}}<span class="gp-meter{{#goal}} has-goal{{/goal}}" aria-hidden="true" style="--score:{{level}};--goal:{{goal}}"></span>{{/level}}
+        <span class="gp-score{{^level}} unscored{{/level}}">{{#level}}{{level}}/5{{/level}}{{^level}}—{{/level}}</span>
+        {{#focus}}{{#next_check}}<span class="gp-check"><b>{{check_label}}</b> · {{next_check}}</span>{{/next_check}}{{/focus}}
+      </summary>
+      <div class="gp-observation"><p>{{evidence}}</p>{{^focus}}{{#next_check}}<span class="gp-check"><b>{{check_label}}</b> · {{next_check}}</span>{{/next_check}}{{/focus}}</div>
+    </details>
+    {{/abilities}}
+    <footer class="gp-tools">
+      <details class="gp-scale">
+        <summary>{{scale_label}}</summary>
+        <ol start="0">{{#levels}}<li><b>{{label}}</b> · {{meaning}}</li>{{/levels}}</ol>
+      </details>
+      <p class="gp-shortcuts" hidden><kbd>↑ ↓</kbd> / <kbd>j k</kbd> <span></span> <kbd>↵</kbd> <span></span></p>
+    </footer>
+  </template>
 </section>
+<script>
+(() => {
+  const root = document.getElementById("gp-mastery");
+  const report = root.querySelector("#gp-report");
+  const intro = root.querySelector(".gp-intro");
+  const fileInput = root.querySelector("input");
+  const chinese = navigator.language.toLowerCase().startsWith("zh");
+  const defaults = [
+    ["New", "This idea is new to the learner."], ["Recognize", "Recognizes the idea when it appears."],
+    ["Follow", "Can follow a worked example."], ["Guided", "Can apply the idea with help."],
+    ["Independent", "Can choose and apply the method independently."],
+    ["Adapt", "Can explain the method and adapt it to an unfamiliar constraint."]
+  ].map(([label, meaning]) => ({label, meaning}));
+
+  function text(value, key) {
+    if (typeof value !== "string" || /[\x00-\x1f\x7f-\x9f]/.test(value)) throw Error(key);
+    return value.trim();
+  }
+  function grade(value, key) {
+    if (value !== null && !(Number.isInteger(value) && value >= 0 && value <= 5)) throw Error(key);
+    return value;
+  }
+  // Both renderers expand this fixed template. Values are escaped once, after matching.
+  function expand(markup, data) {
+    const slots = /{{([#^])(\w+)}}([\s\S]*?){{\/\2}}|{{(\w+)}}/g;
+    return markup.replace(slots, (_, kind, key, content, field) => {
+      if (field) {
+        const entities = {"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"};
+        return String(data[field] ?? "").replace(/[&<>"']/g, char => entities[char]);
+      }
+      const value = data[key];
+      if (Array.isArray(value)) return value.map(item => expand(content, {...data, ...item})).join("");
+      const present = value != null && value !== false && value !== "";
+      return present === (kind === "#") ? expand(content, data) : "";
+    });
+  }
+
+  function show(source) {
+    const data = {lang: "en", summary: "", current: null, goal: 4, levels: defaults,
+      current_label: "Current", goal_label: "Goal", evidence_label: "Skills and evidence",
+      focus_label: "Focus", check_label: "Next check", scale_label: "Mastery scale", ...source};
+    for (const key of ["topic", "summary", "lang", "current_label", "goal_label", "evidence_label",
+      "focus_label", "check_label", "scale_label"]) data[key] = text(data[key], key);
+    grade(data.current, "current");
+    grade(data.goal, "goal");
+    if (!Array.isArray(data.levels) || data.levels.length !== 6) throw Error("levels");
+    data.levels = data.levels.map(item => ({label: text(item.label, "label"), meaning: text(item.meaning, "meaning")}));
+    data.goal_name = data.goal === null ? "" : data.levels[data.goal].label;
+    if (!Array.isArray(data.abilities)) throw Error("abilities");
+    let hasFocus = false;
+    data.abilities = data.abilities.map(({name, status, evidence, state, level = null, focus = false, next_check = ""}) => {
+      grade(level, "ability level");
+      if (!["guided", "observed", "unassessed"].includes(state) || (state === "unassessed" && level !== null)) throw Error("state");
+      if (typeof focus !== "boolean" || (focus && hasFocus)) throw Error("focus");
+      if (focus) hasFocus = true;
+      return {name: text(name, "name"), status: text(status, "status"), evidence: text(evidence, "evidence"),
+        state, level, focus, next_check: text(next_check, "next_check")};
+    });
+    report.innerHTML = expand(root.querySelector("#gp-layout").innerHTML, data);
+    report.lang = data.lang;
+    report.hidden = false;
+    intro.hidden = true;
+    document.title = data.topic;
+    report.dispatchEvent(new Event("gp-loaded"));
+  }
+
+  if (chinese) {
+    root.lang = "zh";
+    intro.querySelector("h1").textContent = document.title = "子技能掌握图";
+    intro.querySelector("p").textContent = "打开练习记录，查看每项子技能的等级和评定依据。";
+    root.querySelector(".gp-open span").textContent = "打开 session.json";
+  }
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    fileInput.disabled = true;
+    const error = root.querySelector("#gp-error");
+    try {
+      show(JSON.parse(await file.text()));
+      error.textContent = "";
+    } catch {
+      error.textContent = chinese ? "无法读取记录。请检查 JSON 格式和子技能字段，再次打开文件。" :
+        "Could not read this record. Check its JSON and skill fields, then open it again.";
+    } finally {
+      fileInput.value = "";
+      fileInput.disabled = false;
+    }
+  });
+})();
+</script>
+<script id="gp-keys">
+(() => {
+  const report = document.getElementById("gp-report");
+  function prepareKeys() {
+    const first = report.querySelector(".gp-ability > summary");
+    if (!first) return;
+    const hint = report.querySelector(".gp-shortcuts");
+    const zh = report.lang.toLowerCase().startsWith("zh");
+    const [move, details] = hint.querySelectorAll("span");
+    move.textContent = zh ? "移动" : "Move";
+    details.textContent = zh ? "详情" : "Details";
+    hint.hidden = false;
+    if (document.documentElement.hasAttribute("data-gp-page") && matchMedia("(pointer: fine)").matches &&
+        (document.activeElement === document.body || document.activeElement.matches("#gp-import input"))) {
+      const selected = report.querySelector(".is-focus > summary") || first;
+      selected.focus({preventScroll: true});
+    }
+  }
+  prepareKeys();
+  report.addEventListener("gp-loaded", prepareKeys);
+  report.addEventListener("keydown", event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented) return;
+    if (!event.target.matches(".gp-ability > summary")) return;
+    const offset = {ArrowDown: 1, j: 1, ArrowUp: -1, k: -1}[event.key];
+    if (!offset) return;
+    const rows = Array.from(report.querySelectorAll(".gp-ability > summary"));
+    const next = rows[rows.indexOf(event.target) + offset];
+    if (next) {
+      event.preventDefault();
+      next.focus();
+    }
+  });
+})();
+</script>
