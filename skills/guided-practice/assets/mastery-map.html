@@ -1,181 +1,85 @@
 <style>
   #gp-mastery {
-    --gp-paper: var(--color-background-primary, #faf8f1);
-    --gp-ink: var(--color-text-primary, #202e2b);
-    --gp-muted: var(--color-text-secondary, #53625c);
-    --gp-line: color-mix(in srgb, var(--gp-ink) 24%, var(--gp-paper));
-    --gp-wash: color-mix(in srgb, var(--gp-ink) 5%, var(--gp-paper));
-    --gp-neutral: color-mix(in srgb, var(--gp-ink) 10%, var(--gp-paper));
-    --gp-current: color-mix(in srgb, var(--gp-ink) 44%, #137d66);
-    --gp-goal: color-mix(in srgb, var(--gp-ink) 40%, #b46328);
-    --gp-serif: "Spectral", "Iowan Old Style", "Songti SC", "Noto Serif CJK SC", Georgia, serif;
-    --gp-sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
-    box-sizing: border-box;
+    --paper: var(--color-background-primary, #fbfaf6);
+    --ink: var(--color-text-primary, #202d32);
+    --muted: var(--color-text-secondary, #536268);
+    --line: color-mix(in srgb, var(--ink) 21%, var(--paper));
+    --wash: color-mix(in srgb, var(--ink) 5%, var(--paper));
+    --focus: color-mix(in srgb, #338d80 55%, var(--ink));
+    --serif: "Spectral", "Iowan Old Style", "Songti SC", Georgia, serif;
+    font: 400 1rem/1.45 "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     container: gp-mastery / inline-size;
-    width: 100%;
-    max-width: 54rem;
-    margin-inline: auto;
-    overflow-wrap: anywhere;
-    color: var(--gp-ink);
-    background: var(--gp-paper);
-    border: 1px solid var(--gp-line);
-    border-radius: 12px;
-    font: 400 1rem/1.5 var(--gp-sans);
-    text-align: start;
+    width: 100%; max-width: 52rem; margin-inline: auto; text-align: start; overflow-wrap: anywhere;
+    color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
   }
   @media (prefers-color-scheme: dark) {
     #gp-mastery {
-      --gp-paper: var(--color-background-primary, #1b2422);
-      --gp-ink: var(--color-text-primary, #f0eee2);
-      --gp-muted: var(--color-text-secondary, #bcc4bb);
+      --paper: var(--color-background-primary, #1b2326); --ink: var(--color-text-primary, #f0f0ea);
+      --muted: var(--color-text-secondary, #c0caca);
     }
   }
-  #gp-mastery *,
-  #gp-mastery *::before,
-  #gp-mastery *::after { box-sizing: border-box; }
-  #gp-mastery .gp-sheet { padding: clamp(1rem, 4cqi, 2.25rem); }
-  #gp-mastery .gp-header {
-    padding-block: .25rem clamp(1rem, 3.2cqi, 1.75rem);
-    border-bottom: 1px solid var(--gp-ink);
+  #gp-mastery, #gp-mastery *, #gp-mastery *::after { box-sizing: border-box; }
+  #gp-mastery .gp-sheet { padding: clamp(.85rem, 4cqi, 2rem); }
+  #gp-mastery :is(h2, h3, p) { margin: 0; color: inherit; }
+  #gp-mastery h2 { font: 500 clamp(1.65rem, 5cqi, 2.5rem)/1.18 var(--serif); text-wrap: balance; }
+  #gp-mastery header p { margin-top: .45rem; max-width: 66ch; color: var(--muted); }
+  #gp-mastery header p:empty { display: none; }
+  #gp-mastery .gp-heading {
+    display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .3rem 1rem;
+    margin: 1.3rem 0 0; padding-bottom: .55rem; border-bottom: 1px solid var(--ink);
   }
-  #gp-mastery .gp-header h2 {
-    margin: 0;
-    color: var(--gp-ink);
-    font: 500 clamp(1.65rem, 5.3cqi, 2.8rem)/1.13 var(--gp-serif);
-    letter-spacing: -.035em;
-    text-wrap: balance;
+  #gp-mastery h3 { font: 500 clamp(1.2rem, 3cqi, 1.45rem)/1.3 var(--serif); }
+  #gp-mastery .gp-goal-key { color: var(--muted); font-size: .85rem; }
+  #gp-mastery .gp-goal-key::before {
+    content: ""; display: inline-block; width: 1em; height: .78em; margin-inline-end: .4em;
+    border: 2px dashed currentColor; border-radius: 2px; vertical-align: -.04em;
   }
-  #gp-mastery .gp-header p {
-    max-width: 65ch;
-    margin: .65rem 0 0;
-    color: var(--gp-muted);
-    font: 400 .94rem/1.55 var(--gp-sans);
+  #gp-mastery .gp-ability {
+    --accent: #79898d; --strong: color-mix(in srgb, var(--accent) 55%, var(--ink));
+    border-bottom: 1px solid var(--line);
   }
-  #gp-mastery .gp-header p:empty { display: none; }
-  #gp-mastery .gp-steps {
-    --gp-rise: clamp(.8rem, 3.2cqi, 1.65rem);
-    --gp-base: 2.55rem;
-    --gp-plot: calc(var(--gp-base) + 5 * var(--gp-rise));
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: clamp(3px, .85cqi, 8px);
-    margin-block: clamp(1.15rem, 3cqi, 1.65rem) 1rem;
+  #gp-mastery [data-state="observed"] { --accent: #179780; }
+  #gp-mastery [data-state="guided"] { --accent: #d38a37; }
+  #gp-mastery .is-focus { background: color-mix(in srgb, var(--focus) 7%, var(--paper)); }
+  #gp-mastery summary { cursor: pointer; color: inherit; }
+  #gp-mastery .gp-ability summary {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) 2.3rem .65rem;
+    align-items: center; gap: .4rem .75rem; padding: .75rem .6rem; list-style: none;
   }
-  #gp-mastery .gp-steps::before {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    inset: 0 0 auto;
-    height: var(--gp-plot);
-    border-bottom: 1px solid var(--gp-line);
-    background: repeating-linear-gradient(to top, transparent 0 calc(var(--gp-rise) - 1px),
-      color-mix(in srgb, var(--gp-ink) 9%, transparent) calc(var(--gp-rise) - 1px) var(--gp-rise));
-    pointer-events: none;
+  #gp-mastery .gp-ability summary::-webkit-details-marker { display: none; }
+  #gp-mastery .gp-ability summary::after {
+    content: ""; grid-area: 1 / 4; width: .45rem; height: .45rem; justify-self: center;
+    border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
   }
-  #gp-mastery .gp-step { position: relative; min-width: 0; }
-  #gp-mastery .gp-choice {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    clip-path: inset(50%);
-    overflow: hidden;
-    white-space: nowrap;
-    border: 0;
+  #gp-mastery .gp-ability[open] summary::after { transform: rotate(225deg); }
+  #gp-mastery summary:focus-visible, #gp-mastery .gp-choice:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 1px; }
+  #gp-mastery .gp-info { grid-area: 1 / 1; }
+  #gp-mastery .gp-focus-label { color: var(--focus); font-weight: 700; font-size: .78rem; }
+  #gp-mastery .gp-status { display: block; margin-top: .15rem; color: var(--strong); font-size: .86rem; }
+  #gp-mastery .gp-score { grid-area: 1 / 3; color: var(--strong); font-weight: 700; text-align: end; font-variant-numeric: tabular-nums; }
+  #gp-mastery .gp-strip { grid-area: 1 / 2; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .2rem; align-self: center; }
+  #gp-mastery .gp-cell {
+    position: relative; height: .62rem;
+    border-radius: 3px; background: var(--wash); color: var(--muted);
   }
-  #gp-mastery .gp-step label {
-    display: grid;
-    grid-template-rows: var(--gp-plot) auto auto;
-    height: 100%;
-    align-content: start;
-    color: var(--gp-ink);
-    border-radius: 4px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-  #gp-mastery .gp-bar {
-    position: relative;
-    display: flex;
-    align-self: end;
-    align-items: flex-start;
-    height: calc(var(--gp-base) + var(--step) * var(--gp-rise));
-    padding: .25rem clamp(.3rem, 1.3cqi, .85rem);
-    border: 1px solid var(--gp-line);
-    border-block-start: 2px solid var(--gp-muted);
-    border-radius: 4px 4px 0 0;
-    background: var(--gp-neutral);
-    color: var(--gp-ink);
-  }
-  #gp-mastery .gp-n {
-    font: 500 clamp(1.45rem, 3.7cqi, 2.2rem)/1 var(--gp-serif);
-    font-variant-numeric: lining-nums tabular-nums;
-  }
-  #gp-mastery .gp-name {
-    align-self: start;
-    padding: .55rem .05rem 0;
-    font: 600 clamp(.76rem, 1.7cqi, .92rem)/1.3 var(--gp-sans);
-  }
-  #gp-mastery .gp-role {
-    align-self: start;
-    padding: .28rem .05rem 0;
-    color: var(--gp-muted);
-    font: 600 .76rem/1.35 var(--gp-sans);
-  }
-  #gp-mastery .gp-role:empty { display: none; }
-  #gp-mastery .is-goal .gp-bar {
-    border: 2px dashed var(--gp-goal);
-    color: var(--gp-goal);
-    background: repeating-linear-gradient(-45deg, transparent 0 6px,
-      color-mix(in srgb, var(--gp-goal) 13%, transparent) 6px 7.5px), var(--gp-paper);
-  }
-  #gp-mastery .is-goal .gp-role { color: var(--gp-goal); }
-  #gp-mastery .is-current .gp-bar {
-    border: 2px solid var(--gp-current);
-    color: var(--gp-paper);
-    background: var(--gp-current);
-  }
-  #gp-mastery .is-current .gp-role { color: var(--gp-current); }
-  #gp-mastery .is-current.is-goal .gp-bar::after {
-    content: "";
-    position: absolute;
-    inset: 2px;
-    border: 1px dashed var(--gp-paper);
-    border-radius: 1px;
-    pointer-events: none;
-  }
-  #gp-mastery .gp-choice:checked + label .gp-name {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: .22em;
-  }
-  #gp-mastery .gp-choice:focus-visible + label,
-  #gp-mastery .gp-ability summary:focus-visible {
-    outline: 3px solid var(--gp-current);
-    outline-offset: 2px;
-  }
-  @media (hover: hover) {
-    #gp-mastery .gp-step label:hover .gp-name,
-    #gp-mastery .gp-ability summary:hover .gp-ability-name {
-      text-decoration: underline;
-      text-underline-offset: .22em;
-    }
-  }
-  #gp-mastery .gp-meanings {
-    padding: .75rem 1rem;
-    border-inline-start: 3px solid var(--gp-current);
-    background: var(--gp-wash);
-  }
-  #gp-mastery .gp-meaning {
-    margin: 0;
-    color: var(--gp-ink);
-    font: 400 .94rem/1.55 var(--gp-sans);
-  }
+  #gp-mastery .gp-cell.is-past { background: color-mix(in srgb, var(--accent) 65%, var(--paper)); color: var(--ink); }
+  #gp-mastery .gp-cell.is-score { background: var(--strong); color: var(--paper); }
+  #gp-mastery .gp-strip.is-unscored { height: .62rem; background: linear-gradient(90deg, var(--line) 45%, transparent 45%) left center / 7px 1px repeat-x; }
+  #gp-mastery .gp-strip.is-unscored .gp-cell { visibility: hidden; }
+  #gp-mastery .gp-cell.is-goal::after { content: ""; position: absolute; inset: -2px 0; border: 1px dashed var(--muted); border-radius: 2px; }
+  #gp-mastery .gp-check, #gp-mastery .gp-observation { color: var(--muted); font-size: .89rem; }
+  #gp-mastery .gp-check { display: block; grid-column: 1 / -1; }
+  #gp-mastery .gp-observation { padding: 0 .6rem .75rem; }
+  #gp-mastery .gp-observation .gp-check { margin-top: .35rem; }
+  #gp-mastery .gp-scale > summary { padding: .8rem 0 .5rem; font-weight: 600; }
+  #gp-mastery .gp-steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .3rem; }
+  #gp-mastery .gp-choice { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+  #gp-mastery .gp-step label { display: block; height: 100%; padding: .4rem; border: 1px solid var(--line); border-radius: 4px; font-size: .84rem; cursor: pointer; }
+  #gp-mastery .gp-choice:checked + label { background: var(--wash); border-color: var(--ink); }
+  #gp-mastery .gp-role { display: block; color: var(--muted); font-size: .76rem; }
+  #gp-mastery .gp-meaning { margin-top: .45rem; color: var(--muted); font-size: .9rem; }
   @supports selector(:has(*)) {
-    #gp-mastery .gp-meaning,
-    #gp-mastery:not(:has(.gp-choice:checked)) .gp-meanings { display: none; }
+    #gp-mastery .gp-meaning { display: none; }
     #gp-mastery:has(#gp-level-0:checked) .gp-meaning[data-level="0"],
     #gp-mastery:has(#gp-level-1:checked) .gp-meaning[data-level="1"],
     #gp-mastery:has(#gp-level-2:checked) .gp-meaning[data-level="2"],
@@ -183,160 +87,30 @@
     #gp-mastery:has(#gp-level-4:checked) .gp-meaning[data-level="4"],
     #gp-mastery:has(#gp-level-5:checked) .gp-meaning[data-level="5"] { display: block; }
   }
-  #gp-mastery .gp-evidence { margin-block-start: clamp(1.4rem, 4cqi, 2.2rem); }
-  #gp-mastery .gp-evidence h3 {
-    margin: 0;
-    padding-bottom: .65rem;
-    color: var(--gp-ink);
-    border-block-end: 1px solid var(--gp-ink);
-    font: 500 clamp(1.2rem, 3cqi, 1.55rem)/1.25 var(--gp-serif);
-  }
-  #gp-mastery .gp-ability {
-    --gp-mark-color: var(--gp-muted);
-    display: block;
-    margin: 0;
-    border-block-end: 1px solid var(--gp-line);
-  }
-  #gp-mastery .gp-ability[data-state="observed"] { --gp-mark-color: var(--gp-current); }
-  #gp-mastery .gp-ability[data-state="guided"] { --gp-mark-color: var(--gp-goal); }
-  #gp-mastery .gp-ability summary {
-    display: grid;
-    grid-template-columns: 1rem minmax(0, 1fr) minmax(0, max-content) .75rem;
-    align-items: center;
-    gap: .65rem;
-    min-height: 3.15rem;
-    padding-block: .7rem;
-    padding-inline-end: .2rem;
-    border-radius: 2px;
-    cursor: pointer;
-    list-style: none;
-  }
-  #gp-mastery .gp-ability summary::-webkit-details-marker { display: none; }
-  #gp-mastery .gp-ability summary::after {
-    content: "";
-    justify-self: center;
-    width: .48rem;
-    height: .48rem;
-    margin-top: -.18rem;
-    border-right: 1.5px solid var(--gp-muted);
-    border-bottom: 1.5px solid var(--gp-muted);
-    transform: rotate(45deg);
-  }
-  #gp-mastery .gp-ability[open] summary::after {
-    margin-top: .18rem;
-    transform: rotate(225deg);
-  }
-  #gp-mastery .gp-mark {
-    justify-self: center;
-    width: .67rem;
-    height: .67rem;
-    border: 1.5px dashed var(--gp-mark-color);
-    border-radius: 50%;
-  }
-  #gp-mastery [data-state="observed"] .gp-mark {
-    border: 1.5px solid var(--gp-mark-color);
-    border-radius: 2px;
-    background: var(--gp-mark-color);
-  }
-  #gp-mastery [data-state="guided"] .gp-mark {
-    border: 1.5px solid var(--gp-mark-color);
-    border-radius: 1px;
-    background: linear-gradient(to right, var(--gp-mark-color) 50%, transparent 50%);
-    transform: rotate(45deg);
-  }
-  #gp-mastery .gp-ability-name { font: 600 .97rem/1.4 var(--gp-sans); }
-  #gp-mastery .gp-status {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    flex-wrap: wrap;
-    gap: .25rem .5rem;
-    color: var(--gp-mark-color);
-    font: 500 .8rem/1.35 var(--gp-sans);
-  }
-  #gp-mastery .gp-level-meter {
-    display: inline-grid;
-    grid-auto-flow: column;
-    grid-auto-columns: .28rem;
-    align-items: end;
-    gap: 2px;
-  }
-  #gp-mastery .gp-level-meter i {
-    height: .6rem;
-    border: 1px solid var(--gp-mark-color);
-    border-radius: 1px;
-  }
-  #gp-mastery .gp-level-meter .is-filled { background: var(--gp-mark-color); }
-  #gp-mastery .gp-ability p {
-    max-width: 72ch;
-    margin: -.2rem 1.5rem .9rem 1.65rem;
-    color: var(--gp-muted);
-    font: 400 .9rem/1.6 var(--gp-sans);
-  }
-  @container gp-mastery (max-width: 28rem) {
-    #gp-mastery .gp-steps {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 3px;
-    }
-    #gp-mastery .gp-steps::before { display: none; }
-    #gp-mastery .gp-step label {
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-      grid-template-rows: auto;
-      column-gap: .8rem;
-      align-content: center;
-      min-height: 2.75rem;
-    }
-    #gp-mastery .gp-bar {
-      grid-row: 1 / 3;
-      align-self: stretch;
-      align-items: center;
-      justify-content: end;
-      width: calc(25% + var(--step) * 15%);
-      height: auto;
-      min-height: 2.75rem;
-      padding: .15rem .5rem;
-      border-radius: 0 4px 4px 0;
-    }
-    #gp-mastery .gp-n { font-size: 1.35rem; }
-    #gp-mastery .gp-name,
-    #gp-mastery .gp-role { grid-column: 2; padding: 0; }
-    #gp-mastery .gp-name { align-self: center; font-size: .86rem; }
-    #gp-mastery .gp-step:has(.gp-role:not(:empty)) .gp-name { align-self: end; }
-    #gp-mastery .gp-role { padding-top: .15rem; }
-    #gp-mastery .gp-step:has(.gp-role:empty) .gp-name { grid-row: 1 / 3; }
-    #gp-mastery .gp-ability summary {
-      grid-template-columns: 1rem minmax(0, 1fr) .75rem;
-      row-gap: .22rem;
-    }
-    #gp-mastery .gp-mark { grid-column: 1; grid-row: 1; }
-    #gp-mastery .gp-ability-name { grid-column: 2; grid-row: 1; }
-    #gp-mastery .gp-status { grid-column: 2; grid-row: 2; justify-content: start; }
-    #gp-mastery .gp-ability summary::after { grid-column: 3; grid-row: 1 / 3; }
+  @container gp-mastery (max-width: 32rem) {
+    #gp-mastery .gp-ability summary { grid-template-columns: minmax(0, 1fr) 2.3rem .65rem; }
+    #gp-mastery .gp-score { grid-area: 1 / 2; }
+    #gp-mastery .gp-ability summary::after { grid-area: 1 / 3; }
+    #gp-mastery .gp-strip { grid-area: 2 / 1 / 3 / -1; }
+    #gp-mastery .gp-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
   @media (forced-colors: active) {
-    #gp-mastery .gp-bar { border: 1px solid CanvasText; }
-    #gp-mastery .is-goal .gp-bar { border: 2px dashed LinkText; }
-    #gp-mastery .is-current .gp-bar { border: 3px solid Highlight; }
-    #gp-mastery .is-current.is-goal .gp-bar::after { border-color: LinkText; }
-    #gp-mastery [data-state="observed"] .gp-mark,
-    #gp-mastery .gp-level-meter .is-filled { background: CanvasText; forced-color-adjust: none; }
+    #gp-mastery .gp-cell.is-past { border-bottom: 3px solid CanvasText; }
+    #gp-mastery .gp-cell.is-score { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+    #gp-mastery .gp-choice:checked + label { outline: 2px solid Highlight; }
   }
 </style>
 <section id="gp-mastery" lang="@@LANG@@" aria-labelledby="gp-topic">
   <div class="gp-sheet">
-    <header class="gp-header">
-      <h2 id="gp-topic">@@TOPIC@@</h2>
-      <p>@@SUMMARY@@</p>
-    </header>
-    <div class="gp-steps" role="radiogroup" aria-label="@@SCALE_LABEL@@">
-      @@STEPS@@
-    </div>
-    <div class="gp-meanings" aria-live="polite" aria-atomic="true">
-      @@MEANINGS@@
-    </div>
-    <section class="gp-evidence" aria-labelledby="gp-evidence-title">
-      <h3 id="gp-evidence-title">@@EVIDENCE_LABEL@@</h3>
+    <header><h2 id="gp-topic">@@TOPIC@@</h2><p>@@SUMMARY@@</p></header>
+    <section aria-labelledby="gp-evidence-title">
+      <div class="gp-heading"><h3 id="gp-evidence-title">@@EVIDENCE_LABEL@@</h3>@@GOAL_KEY@@</div>
       @@ABILITIES@@
     </section>
+    <details class="gp-scale">
+      <summary>@@SCALE_LABEL@@</summary>
+      <div class="gp-steps" role="radiogroup" aria-label="@@SCALE_LABEL@@">@@STEPS@@</div>
+      <div class="gp-meanings" aria-live="polite" aria-atomic="true">@@MEANINGS@@</div>
+    </details>
   </div>
 </section>
