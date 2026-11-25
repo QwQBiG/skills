@@ -1,40 +1,41 @@
 ---
 name: guided-practice
-description: Tutor a learner through interactive practice, using their answers to choose the next question and check what they can do independently. Use when they ask for tutoring, a quiz, a drill, or practice toward a learning goal.
+description: Lead interactive tutoring, quizzes, or drills. Use the learner's answers to choose the next question and assess what they can do independently.
 ---
 
 # Guided practice
 
-## Set the scope
+## Agree on a finish
 
-Start from the outcome the learner wants and any material they supply. A request for an explanation gets a direct answer. If the learner asks for a quick trial, give up to two questions by default, counting follow-ups, then summarize what their answers showed. Follow any limit they give. Switch tasks or stop when asked.
+Use the learner's goal, examples, and preferred notation. Answer a request for an explanation directly. For a quick trial, ask up to two questions, including follow-ups, then close with one observation from the answers. Honor a limit the learner gives.
 
-For sustained tutoring, identify a few abilities the learner should be able to demonstrate. Start with a short diagnostic across those abilities, one question per turn. Use a recent answer or work sample as evidence where it fits. After the diagnostic, show the starting levels and suggest which ability to work on first.
+For a full session, turn the goal into a few things the learner should be able to do. Tell them what finishing will involve. Sample their starting point with a short diagnostic, one question at a time. Use relevant work they have already shown. Share a compact progress map and agree on the next focus.
 
-## Respond to the learner
+## Choose the next question
 
-Ask questions one at a time and wait for an answer. Choose a task that reveals reasoning, such as making a prediction, explaining a choice, or applying an idea in a new situation. Judge the reasoning as well as the result when both matter.
+Check the result and the learner's reasoning. If they reach a correct answer through a faulty step, ask about that step. When their answer already demonstrates the skill, move on.
 
-- If the answer is off, acknowledge any sound reasoning and ask the learner to revisit the first step that needs work.
-- If the learner is stuck, isolate a smaller step or supply one hint. If that still leaves them stuck, explain the missing idea briefly and check it in a fresh example.
-- If the learner asks for the answer, give it. Mark any later application of the same idea as independent only when they can do it in a fresh case without that help.
-- Revisit earlier ideas between new ones. Use a different problem or context to check whether the learner can still apply them.
+Give the learner room to answer each question. For a partial answer, acknowledge the part that holds and ask about the missing step. If they are stuck, offer a hint that leaves that step for them to do. If the hint does not help, explain the idea briefly. Clarify unfamiliar wording or give a requested answer as soon as they ask.
 
-## Track progress and finish
+After helping, return to the idea later in a fresh case. Change a condition that matters so the learner has to decide how to proceed. When they ask about progress or procedure, answer that question and let them choose when to resume. Stop or switch tasks when asked.
 
-Use levels for sustained tutoring. Record what each answer demonstrates and whether help was needed.
+## Judge the evidence
 
-| Level | Evidence |
+Track each ability separately in a full session.
+
+| Level | What the learner has shown |
 | --- | --- |
-| 0 | New to the idea |
-| 1 | Recognizes it |
-| 2 | Can follow a worked example |
-| 3 | Can apply it with help |
-| 4 | Can apply it independently |
-| 5 | Can explain why it works and handle a boundary case |
+| 0 | The idea is new to them |
+| 1 | They recognize it |
+| 2 | They can follow a worked example |
+| 3 | They can apply it with help |
+| 4 | They can apply it independently |
+| 5 | They can explain the method and adapt it to an unfamiliar constraint |
 
-Mark untested abilities as unassessed. Confirm independent performance on two distinct tasks completed without hints. In at least one, let the learner recognize which method applies. If later work exposes a gap, update the level and address it. Show a compact progress map after placement, when a level changes, and on request.
+Mark untested abilities as unassessed. For level 4, look for two distinct tasks solved without hints, including one where the learner chose the method. For level 5, identify what the learner explained and which part of their usual reasoning they had to adapt. Record what help was given. Update the map when a level changes or the learner asks. Say what evidence is still needed.
 
-Once every ability reaches the agreed target (level 4 by default), use fresh questions to assess each ability and, where there are several, a task combining them. If a gap remains, practice and recheck the affected ability. After a pass, give the final levels and one pattern worth remembering, then end the session. When asked to demonstrate the ending, label any assumed result as simulated.
+## Close the session
 
-On request, provide a short record of the goal, current levels, evidence, and next exercise so the learner can resume in another chat.
+Once every ability reaches the agreed target (level 4 by default), use fresh work for the final assessment. A single problem can cover several abilities if the learner demonstrates each one. Ask another question only for an ability the final work has yet to establish. If help was needed, revisit that part and recheck it independently.
+
+After a pass, report the supported levels, point to one decision the learner handled well, and finish. For a demonstration of the ending, label the result as simulated and leave the learner's recorded levels intact. On request, provide a brief handoff with the goal, evidence so far, and next check.
