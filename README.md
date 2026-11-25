@@ -10,6 +10,7 @@
 | --- | --- |
 | [change-review](skills/change-review/SKILL.md) | 按项目惯例审查代码、测试和文档，指出合入前值得处理的问题 |
 | [code-simplification-review](skills/code-simplification-review/SKILL.md) | 重构前审查哪些复杂性值得消除，从调用方和测试核验建议 |
+| [guided-practice](skills/guided-practice/SKILL.md) | 根据回答逐题辅导，从诊断到检验能否独立运用 |
 | [handwrite-page](skills/handwrite-page/SKILL.md) | 参照手写样稿，把中文、英文和公式写到实拍信纸上。[查看素材与成图](examples/handwrite-page/README.md) |
 | [natural-writing](skills/natural-writing/SKILL.md) | 中文、英文写作、润色与审改，适用于 Codex |
 
