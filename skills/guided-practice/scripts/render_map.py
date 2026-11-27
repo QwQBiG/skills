@@ -112,6 +112,7 @@ def main():
     parser.add_argument("--color", choices=("auto", "always", "never"), default="auto")
     parser.add_argument("--width", type=int, help="terminal width in columns")
     parser.add_argument("--once", action="store_true", help="print the terminal view and return to the prompt")
+    parser.add_argument("--scale", action="store_true", help="show all six mastery level definitions in the terminal")
     parser.add_argument("--inspect", type=int, choices=range(6), help="inspect a level in the terminal")
     parser.add_argument("--detail", metavar="ABILITY", help="show the evidence for a named ability in the terminal")
     parser.add_argument("--ascii", action="store_true", help="use ASCII graph marks in the terminal")
@@ -130,7 +131,8 @@ def main():
             from terminal_entry import terminal_entry
 
             output = terminal_entry(data, width=args.width, color_mode=args.color,
-                                    ascii_only=args.ascii, inspect_level=args.inspect, detail=args.detail)
+                                    ascii_only=args.ascii, inspect_level=args.inspect, detail=args.detail,
+                                    show_scale=args.scale)
             if interactive:
                 with tempfile.TemporaryDirectory() as directory:
                     entry = Path(directory) / "mastery.sh"
@@ -140,15 +142,18 @@ def main():
                     except KeyboardInterrupt:
                         return 130
         elif args.format == "terminal":
-            from terminal_map import render_terminal
+            from terminal_map import render_scale, render_terminal
 
             auto_color = is_tty and os.environ.get("TERM") != "dumb" and not os.environ.get("NO_COLOR")
             color = args.color == "always" or (args.color == "auto" and auto_color)
             width = args.width if args.width is not None else shutil.get_terminal_size((80, 24)).columns
             if width <= 0:
                 raise ValueError("width must be positive")
-            output = render_terminal(data, width=width, color=color, ascii_only=args.ascii,
-                                     inspect_level=args.inspect, detail=args.detail)
+            if args.scale:
+                output = render_scale(data, width=width, color=color, ascii_only=args.ascii)
+            else:
+                output = render_terminal(data, width=width, color=color, ascii_only=args.ascii,
+                                         inspect_level=args.inspect, detail=args.detail)
         else:
             output = web_map(data, standalone=args.format == "html")
         if args.output and args.format == "command":
