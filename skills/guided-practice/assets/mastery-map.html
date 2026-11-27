@@ -5,111 +5,117 @@
 <meta name="color-scheme" content="light dark">
 <title>Mastery map</title>
 <style>
-  html[data-gp-page] { color-scheme: light dark; background: #f2f5fa; }
+  html[data-gp-page] { color-scheme: light dark; background: #fcfafb; }
   html[data-gp-page] body { margin: 0; padding: clamp(1.1rem, 5vw, 4rem) clamp(.8rem, 4vw, 2rem); }
   #gp-mastery {
-    --ink: var(--foreground, #192842); --quiet: var(--muted-foreground, #495b76);
-    --line: var(--border, #c5cfdd); --track: #c7d2e2;
-    --cyan: #006d88; --violet: #6550b4; --amber: #925900; --row: #e2edf5;
+    --ink: var(--foreground, #30272c); --quiet: var(--muted-foreground, #695d63);
+    --line: var(--border, #dacfd4); --track: #e7d7de;
+    --rose: #a7275c; --berry: #b44270; --amber: #925900; --wash: #faeaf0;
     --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    -webkit-tap-highlight-color: rgb(188 44 104 / 15%);
     max-width: 48rem; margin-inline: auto; container-type: inline-size; color: var(--ink);
     font: 400 1rem/1.45 "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     overflow-wrap: anywhere; text-align: start;
   }
   @media (prefers-color-scheme: dark) {
-    html[data-gp-page] { background: #111827; }
+    html[data-gp-page] { background: #1c181b; }
     #gp-mastery {
-      --ink: var(--foreground, #e6f0ff); --quiet: var(--muted-foreground, #a6b7ce);
-      --line: var(--border, #34445b); --track: #34455f;
-      --cyan: #5de2e8; --violet: #b6a1ff; --amber: #ffd07e; --row: #1b3041;
+      -webkit-tap-highlight-color: rgb(255 158 198 / 18%);
+      --ink: var(--foreground, #f7eff3); --quiet: var(--muted-foreground, #cbb9c2);
+      --line: var(--border, #52424a); --track: #624b56;
+      --rose: #ff9ec6; --berry: #ee89b2; --amber: #ffd07e; --wash: #38252e;
     }
   }
   #gp-mastery *, #gp-mastery *::before, #gp-mastery *::after { box-sizing: border-box; }
   #gp-mastery [hidden] { display: none !important; }
-  #gp-mastery :is(h1,h2,p,ol) { margin: 0; color: inherit; }
+  :where(#gp-mastery) :is(h1,h2,p,ol) { margin: 0; color: inherit; }
   #gp-mastery h1 { display: flex; gap: .5em; align-items: baseline; font: 650 clamp(1.45rem, 4.4cqi, 2.05rem)/1.25 var(--mono); }
-  #gp-mastery h1::before { content: ""; flex: 0 0 .67em; height: .66em; background: var(--cyan); clip-path: polygon(0 0, 26% 0, 68% 50%, 26% 100%, 0 100%, 42% 50%); }
-  #gp-mastery .gp-caption, #gp-mastery .gp-intro p { margin-top: .45rem; color: var(--quiet); }
-  #gp-mastery .gp-heading, #gp-mastery .gp-tools {
+  #gp-mastery h1::before { content: ""; flex: 0 0 .67em; height: .66em; background: var(--rose); clip-path: polygon(0 0, 26% 0, 68% 50%, 26% 100%, 0 100%, 42% 50%); }
+  .gp-caption { margin-top: .45rem; color: var(--quiet); }
+  .gp-heading, .gp-tools {
     display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .3rem .75rem;
   }
-  #gp-mastery .gp-heading {
+  .gp-heading {
     margin-top: 1.35rem; padding: .4rem .5rem; border-block: 1px solid var(--line);
     font: 500 .86rem/1.5 var(--mono);
   }
   #gp-mastery h2 { font: inherit; font-weight: 650; }
-  #gp-mastery .gp-key, #gp-mastery .gp-status, #gp-mastery .gp-check, #gp-mastery .gp-scale li { color: var(--quiet); }
-  #gp-mastery .gp-key span + span::before { content: " · "; }
-  #gp-mastery .gp-goal::before { content: ""; display: inline-block; margin-inline: .1em .42em; width: 2px; height: .85em; background: var(--amber); vertical-align: -.08em; }
-  #gp-mastery .gp-ability { border-bottom: 1px solid var(--line); --bar: var(--cyan); }
-  #gp-mastery [data-state="guided"] { --bar: var(--violet); }
-  #gp-mastery summary { cursor: pointer; color: var(--ink); }
-  #gp-mastery .gp-ability > summary {
+  .gp-key, .gp-status, .gp-check, .gp-scale li { color: var(--quiet); }
+  .gp-key span + span { margin-inline-start: .6em; }
+  .gp-goal::before { content: ""; display: inline-block; margin-inline: .1em .42em; width: 2px; height: .85em; background: var(--amber); vertical-align: -.08em; }
+  .gp-ability { border-bottom: 1px solid var(--line); --bar: var(--rose); }
+  .gp-ability[data-state="guided"] { --bar: var(--berry); }
+  :where(#gp-mastery) summary { cursor: pointer; color: var(--ink); }
+  .gp-ability > summary {
     display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(3rem, 6.6rem) 2.6rem .6rem;
     align-items: center; gap: .1rem .65rem; padding: .57rem .5rem; list-style: none;
   }
-  #gp-mastery .gp-ability summary::-webkit-details-marker { display: none; }
-  #gp-mastery .gp-ability summary::after {
+  .gp-ability summary::-webkit-details-marker { display: none; }
+  .gp-ability summary::after {
     content: ""; grid-area: 1 / 5; width: .4rem; height: .4rem; justify-self: center;
     border: solid var(--quiet); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg);
   }
-  #gp-mastery .gp-ability[open] summary::after { transform: rotate(45deg); }
-  #gp-mastery .is-focus > summary { box-shadow: inset 3px 0 var(--cyan); background: var(--row); }
-  #gp-mastery .gp-ability > summary:focus-visible { outline: 2px solid var(--violet); outline-offset: -2px; }
-  #gp-mastery .gp-name { font-weight: 650; }
-  #gp-mastery .gp-focus { display: inline-block; margin-inline-start: .55em; color: var(--cyan); font: 650 .78rem/1.4 var(--mono); }
-  #gp-mastery .gp-status, #gp-mastery .gp-check, #gp-mastery .gp-observation { font-size: .88rem; }
-  #gp-mastery .gp-status { grid-area: 1 / 2; }
-  #gp-mastery .gp-meter { position: relative; grid-area: 1 / 3; height: 7px; }
-  #gp-mastery .gp-meter::before {
+  .gp-ability[open] summary::after { transform: rotate(45deg); }
+  .gp-ability.is-focus > summary { box-shadow: inset 3px 0 var(--rose); background: var(--wash); }
+  .gp-ability > summary:focus-visible { outline: 2px solid var(--berry); outline-offset: -2px; }
+  .gp-name { font-weight: 650; }
+  .gp-focus { display: inline-block; margin-inline-start: .55em; color: var(--rose); font: 650 .78rem/1.4 var(--mono); }
+  .gp-status, .gp-check, .gp-observation { font-size: .88rem; }
+  .gp-status { grid-area: 1 / 2; }
+  .gp-meter { position: relative; grid-area: 1 / 3; height: 7px; }
+  .gp-meter::before {
     content: ""; display: block; height: 100%;
     background: linear-gradient(to right, var(--bar) calc(var(--score) * 20%), var(--track) 0);
     mask-image: repeating-linear-gradient(to right, #000 0 calc(20% - 2px), transparent calc(20% - 2px) 20%);
   }
-  #gp-mastery .gp-meter.has-goal::after {
+  .gp-rows.with-goal .gp-meter::after {
     content: ""; position: absolute; left: clamp(0px, calc(var(--goal) * 20% - 2px), calc(100% - 2px));
     top: -3px; height: 13px; width: 2px; background: var(--amber);
   }
-  #gp-mastery .gp-score { grid-area: 1 / 4; text-align: end; font: 650 .95rem/1.4 var(--mono); }
-  #gp-mastery .gp-score.unscored { color: var(--quiet); }
-  #gp-mastery .gp-check { grid-column: 1 / -1; }
-  #gp-mastery .gp-check b { font-weight: 600; }
-  #gp-mastery .gp-observation { margin: .35rem .55rem .6rem; padding-inline-start: .65rem; border-inline-start: 2px solid var(--violet); }
-  #gp-mastery .gp-tools { padding: .45rem .5rem 0; }
-  #gp-mastery .gp-scale { flex: 1 1 11rem; }
-  #gp-mastery .gp-scale summary { width: fit-content; padding: .25rem 0; color: var(--quiet); font: 500 .85rem/1.5 var(--mono); }
-  #gp-mastery .gp-scale ol { padding-inline-start: 1.6rem; font-size: .87rem; }
-  #gp-mastery .gp-scale li { margin: .25rem 0; }
-  #gp-mastery .gp-scale li b { color: var(--ink); }
-  #gp-mastery .gp-shortcuts { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem; font: 400 .78rem/1.5 var(--mono); color: var(--quiet); }
+  .gp-score { grid-area: 1 / 4; text-align: end; font: 650 .95rem/1.4 var(--mono); }
+  .gp-score.unscored { color: var(--quiet); }
+  .gp-check { grid-column: 1 / -1; }
+  .gp-check b { font-weight: 600; }
+  .gp-observation { margin: .35rem .55rem .6rem; padding-inline-start: .65rem; border-inline-start: 2px solid var(--berry); }
+  .gp-tools { padding: .45rem .5rem 0; }
+  .gp-scale { flex: 1 1 11rem; }
+  .gp-scale summary { width: fit-content; padding: .25rem 0; color: var(--quiet); font: 500 .85rem/1.5 var(--mono); }
+  .gp-scale summary:focus-visible { outline: 2px solid var(--rose); }
+  .gp-scale ol { padding-inline-start: 1.6rem; font-size: .87rem; }
+  .gp-scale li { margin: .25rem 0; }
+  .gp-scale li b { color: var(--ink); }
+  .gp-shortcuts { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem; font: 400 .78rem/1.5 var(--mono); color: var(--quiet); }
   #gp-mastery kbd { padding: 0 .23rem; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 3px; font: inherit; color: var(--ink); }
-  #gp-mastery .gp-intro { margin-bottom: 1rem; }
-  #gp-mastery #gp-report:not([hidden]) + #gp-import { margin: 1rem .5rem 0; }
-  #gp-mastery .gp-open {
-    position: relative; display: inline-flex; align-items: center; padding: .43rem .7rem;
-    border: 1px solid var(--cyan); border-radius: .2rem; color: var(--cyan); font: 600 .9rem/1.45 var(--mono);
-  }
-  #gp-mastery .gp-open:focus-within, #gp-mastery .gp-scale summary:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
-  #gp-mastery input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-  #gp-mastery #gp-error:not(:empty) { margin-top: .6rem; color: var(--amber); }
   @container (max-width: 32rem) {
-    #gp-mastery .gp-ability > summary { grid-template-columns: minmax(0, 1fr) 3.1rem 2.2rem .5rem; column-gap: .4rem; }
-    #gp-mastery .gp-status { grid-area: 2 / 1 / 3 / -1; }
-    #gp-mastery .gp-meter { grid-area: 1 / 2; }
-    #gp-mastery .gp-score { grid-area: 1 / 3; }
-    #gp-mastery .gp-ability summary::after { grid-area: 1 / 4; }
+    .gp-ability > summary { grid-template-columns: minmax(0, 1fr) 3.1rem 2.2rem .5rem; column-gap: .4rem; }
+    .gp-status { grid-area: 2 / 1 / 3 / -1; }
+    .gp-meter { grid-area: 1 / 2; }
+    .gp-score { grid-area: 1 / 3; }
+    .gp-ability summary::after { grid-area: 1 / 4; }
   }
   @media (pointer: coarse) {
-    #gp-mastery :is(.gp-ability > summary,.gp-scale summary,.gp-open) { min-height: 44px; }
-    #gp-mastery .gp-shortcuts { display: none; }
+    #gp-mastery :is(.gp-ability > summary,.gp-scale summary) { min-height: 44px; }
+    .gp-shortcuts { display: none; }
   }
   @media (forced-colors: active) {
-    #gp-mastery .gp-meter { forced-color-adjust: none; --bar: Highlight; --track: GrayText; --amber: CanvasText; }
-    #gp-mastery .is-focus > summary { border-inline-start: 3px solid Highlight; }
+    .gp-meter { forced-color-adjust: none; --bar: Highlight; --track: GrayText; --amber: CanvasText; }
+    .gp-ability.is-focus > summary { border-inline-start: 3px solid Highlight; }
   }
 </style>
 <section id="gp-mastery">
   <article id="gp-report" aria-labelledby="gp-topic" hidden></article>
+  <style id="gp-import-style">
+    .gp-intro p { margin-top: .45rem; color: var(--quiet); }
+    #gp-import { margin-block-start: .75rem; }
+    .gp-open {
+      position: relative; display: inline-block; margin-top: .7rem; padding: .55rem .8rem;
+      border: 1px solid var(--rose); border-radius: .3rem; color: var(--rose);
+    }
+    .gp-open:focus-within { outline: 2px solid var(--rose); }
+    .gp-open input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    #gp-error { color: var(--rose); }
+    @media (pointer: coarse) { .gp-open { box-sizing: border-box; min-height: 44px; } }
+  </style>
   <div id="gp-import">
     <header class="gp-intro">
       <h1>Mastery map</h1>
@@ -124,18 +130,20 @@
       <h2>{{evidence_label}}</h2>
       <span class="gp-key">{{#current}}<span>{{current_label}} {{current}}/5</span>{{/current}}{{#goal}}<span class="gp-goal">{{goal_label}} {{goal}}/5 · {{goal_name}}</span>{{/goal}}</span>
     </div>
+    <div class="gp-rows{{#goal}} with-goal{{/goal}}" style="--goal:{{goal}}">
     {{#abilities}}
     <details class="gp-ability{{#focus}} is-focus{{/focus}}" data-state="{{state}}">
       <summary>
         <span><b class="gp-name">{{name}}</b>{{#focus}}<span class="gp-focus">{{focus_label}}</span>{{/focus}}</span>
         <span class="gp-status">{{status}}</span>
-        {{#level}}<span class="gp-meter{{#goal}} has-goal{{/goal}}" aria-hidden="true" style="--score:{{level}};--goal:{{goal}}"></span>{{/level}}
+        {{#level}}<span class="gp-meter" aria-hidden="true" style="--score:{{level}}"></span>{{/level}}
         <span class="gp-score{{^level}} unscored{{/level}}">{{#level}}{{level}}/5{{/level}}{{^level}}—{{/level}}</span>
         {{#focus}}{{#next_check}}<span class="gp-check"><b>{{check_label}}</b> · {{next_check}}</span>{{/next_check}}{{/focus}}
       </summary>
       <div class="gp-observation"><p>{{evidence}}</p>{{^focus}}{{#next_check}}<span class="gp-check"><b>{{check_label}}</b> · {{next_check}}</span>{{/next_check}}{{/focus}}</div>
     </details>
     {{/abilities}}
+    </div>
     <footer class="gp-tools">
       <details class="gp-scale">
         <summary>{{scale_label}}</summary>
@@ -258,10 +266,8 @@
   report.addEventListener("keydown", event => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented) return;
     if (!event.target.matches(".gp-ability > summary")) return;
-    const offset = {ArrowDown: 1, j: 1, ArrowUp: -1, k: -1}[event.key];
-    if (!offset) return;
-    const rows = Array.from(report.querySelectorAll(".gp-ability > summary"));
-    const next = rows[rows.indexOf(event.target) + offset];
+    const direction = {ArrowDown: "nextElementSibling", j: "nextElementSibling", ArrowUp: "previousElementSibling", k: "previousElementSibling"}[event.key];
+    const next = direction && event.target.parentElement[direction]?.querySelector("summary");
     if (next) {
       event.preventDefault();
       next.focus();
