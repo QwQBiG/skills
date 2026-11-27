@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN" dir="auto" data-gp-page>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Git 合并冲突</title>
+<style>
+html[data-gp-page] { color-scheme: light dark; background: #fcfafb; }
+html[data-gp-page] body { margin: 0; padding: clamp(1.1rem, 5vw, 4rem) clamp(.8rem, 4vw, 2rem); }
+#gp-mastery {
+--ink: var(--foreground, #30272c); --quiet: var(--muted-foreground, #695d63);
+--line: var(--border, #dacfd4); --track: #e7d7de;
+--rose: #a7275c; --berry: #b44270; --amber: #925900; --wash: #faeaf0;
+--mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+-webkit-tap-highlight-color: rgb(188 44 104 / 15%);
+max-width: 48rem; margin-inline: auto; container-type: inline-size; color: var(--ink);
+font: 400 1rem/1.45 "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+overflow-wrap: anywhere; text-align: start;
+}
+@media (prefers-color-scheme: dark) {
+html[data-gp-page] { background: #1c181b; }
+#gp-mastery {
+-webkit-tap-highlight-color: rgb(255 158 198 / 18%);
+--ink: var(--foreground, #f7eff3); --quiet: var(--muted-foreground, #cbb9c2);
+--line: var(--border, #52424a); --track: #624b56;
+--rose: #ff9ec6; --berry: #ee89b2; --amber: #ffd07e; --wash: #38252e;
+}
+}
+#gp-mastery *, #gp-mastery *::before, #gp-mastery *::after { box-sizing: border-box; }
+#gp-mastery [hidden] { display: none !important; }
+:where(#gp-mastery) :is(h1,h2,p,ol) { margin: 0; color: inherit; }
+#gp-mastery h1 { display: flex; gap: .5em; align-items: baseline; font: 650 clamp(1.45rem, 4.4cqi, 2.05rem)/1.25 var(--mono); }
+#gp-mastery h1::before { content: ""; flex: 0 0 .67em; height: .66em; background: var(--rose); clip-path: polygon(0 0, 26% 0, 68% 50%, 26% 100%, 0 100%, 42% 50%); }
+.gp-caption { margin-top: .45rem; color: var(--quiet); }
+.gp-heading, .gp-tools {
+display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .3rem .75rem;
+}
+.gp-heading {
+margin-top: 1.35rem; padding: .4rem .5rem; border-block: 1px solid var(--line);
+font: 500 .86rem/1.5 var(--mono);
+}
+#gp-mastery h2 { font: inherit; font-weight: 650; }
+.gp-key, .gp-status, .gp-check, .gp-scale li { color: var(--quiet); }
+.gp-key span + span { margin-inline-start: .6em; }
+.gp-goal::before { content: ""; display: inline-block; margin-inline: .1em .42em; width: 2px; height: .85em; background: var(--amber); vertical-align: -.08em; }
+.gp-ability { border-bottom: 1px solid var(--line); --bar: var(--rose); }
+.gp-ability[data-state="guided"] { --bar: var(--berry); }
+:where(#gp-mastery) summary { cursor: pointer; color: var(--ink); }
+.gp-ability > summary {
+display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(3rem, 6.6rem) 2.6rem .6rem;
+align-items: center; gap: .1rem .65rem; padding: .57rem .5rem; list-style: none;
+}
+.gp-ability summary::-webkit-details-marker { display: none; }
+.gp-ability summary::after {
+content: ""; grid-area: 1 / 5; width: .4rem; height: .4rem; justify-self: center;
+border: solid var(--quiet); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg);
+}
+.gp-ability[open] summary::after { transform: rotate(45deg); }
+.gp-ability.is-focus > summary { box-shadow: inset 3px 0 var(--rose); background: var(--wash); }
+#gp-report:dir(rtl) .gp-ability.is-focus > summary { box-shadow: inset -3px 0 var(--rose); }
+#gp-report:dir(rtl) :is(h1,.gp-meter)::before, #gp-report:dir(rtl) .gp-ability:not([open]) summary::after { scale: -1 1; }
+.gp-ability > summary:focus-visible { outline: 2px solid var(--berry); outline-offset: -2px; }
+.gp-name { font-weight: 650; }
+.gp-focus { display: inline-block; margin-inline-start: .55em; color: var(--rose); font: 650 .78rem/1.4 var(--mono); }
+.gp-status, .gp-check, .gp-observation { font-size: .88rem; }
+.gp-status { grid-area: 1 / 2; }
+.gp-meter { position: relative; grid-area: 1 / 3; height: 7px; }
+.gp-meter::before {
+content: ""; display: block; height: 100%;
+background: linear-gradient(to right, var(--bar) calc(var(--score) * 20%), var(--track) 0);
+mask-image: repeating-linear-gradient(to right, #000 0 calc(20% - 2px), transparent calc(20% - 2px) 20%);
+}
+.gp-rows.with-goal .gp-meter::after {
+content: ""; position: absolute; inset-inline-start: clamp(0px, calc(var(--goal) * 20% - 2px), calc(100% - 2px));
+top: -3px; height: 13px; width: 2px; background: var(--amber);
+}
+.gp-score { grid-area: 1 / 4; text-align: end; font: 650 .95rem/1.4 var(--mono); }
+.gp-score.unscored { color: var(--quiet); }
+.gp-check { grid-column: 1 / -1; }
+.gp-check b { font-weight: 600; }
+.gp-observation { margin: .35rem .55rem .6rem; padding-inline-start: .65rem; border-inline-start: 2px solid var(--berry); }
+.gp-tools { padding: .45rem .5rem 0; }
+.gp-scale { flex: 1 1 11rem; }
+.gp-scale summary { width: fit-content; padding: .25rem 0; color: var(--quiet); font: 500 .85rem/1.5 var(--mono); }
+.gp-scale summary:focus-visible { outline: 2px solid var(--rose); }
+.gp-scale ol { padding-inline-start: 1.6rem; font-size: .87rem; }
+.gp-scale li { margin: .25rem 0; }
+.gp-scale li:empty { min-height: 1.45em; }
+.gp-scale li b { color: var(--ink); }
+.gp-shortcuts { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem; font: 400 .78rem/1.5 var(--mono); color: var(--quiet); }
+#gp-mastery kbd { padding: 0 .23rem; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 3px; font: inherit; color: var(--ink); }
+@container (max-width: 32rem) {
+.gp-ability > summary { grid-template-columns: minmax(0, 1fr) 3.1rem 2.2rem .5rem; column-gap: .4rem; }
+.gp-status { grid-area: 2 / 1 / 3 / -1; }
+.gp-meter { grid-area: 1 / 2; }
+.gp-score { grid-area: 1 / 3; }
+.gp-ability summary::after { grid-area: 1 / 4; }
+}
+@media (pointer: coarse) {
+#gp-mastery :is(.gp-ability > summary,.gp-scale summary) { min-height: 44px; }
+.gp-shortcuts { display: none; }
+}
+@media (forced-colors: active) {
+.gp-meter { forced-color-adjust: none; --bar: Highlight; --track: GrayText; --amber: CanvasText; }
+.gp-ability.is-focus > summary { border-inline-start: 3px solid Highlight; }
+}
+</style>
+<section id="gp-mastery">
+<article id="gp-report" aria-labelledby="gp-topic" lang="zh-CN" dir="auto">
+<header><h1 id="gp-topic">Git 合并冲突</h1><p class="gp-caption">配置文件中的一行冲突</p></header>
+<div class="gp-heading">
+<h2>分项掌握度</h2>
+<span class="gp-key"><span class="gp-goal">目标 <bdi dir="ltr">4/5</bdi> · 独立</span></span>
+</div>
+<div class="gp-rows with-goal" style="--goal:4">
+
+<details class="gp-ability" data-state="observed">
+<summary>
+<span><b class="gp-name" dir="auto">合并两处改动</b></span>
+<span class="gp-status">独立完成一次</span>
+
+<span class="gp-score unscored"><bdi dir="ltr">—</bdi></span>
+
+</summary>
+<div class="gp-observation"><p>合并后的配置保留了 timeout 的新值 30 和 retries 的新值 3。</p></div>
+</details>
+
+<details class="gp-ability" data-state="guided">
+<summary>
+<span><b class="gp-name" dir="auto">验证加载结果</b></span>
+<span class="gp-status">提示后列出断言</span>
+<span class="gp-meter" aria-hidden="true" style="--score:3"></span>
+<span class="gp-score"><bdi dir="ltr">3/5</bdi></span>
+
+</summary>
+<div class="gp-observation"><p>得到读取加载器返回值的提示后，分别对 timeout 和 retries 写出了断言。</p></div>
+</details>
+
+<details class="gp-ability is-focus" data-state="unassessed">
+<summary>
+<span><b class="gp-name" dir="auto">处理同一字段的分歧</b><span class="gp-focus">下一项</span></span>
+<span class="gp-status">待测</span>
+
+<span class="gp-score unscored"><bdi dir="ltr">—</bdi></span>
+<span class="gp-check"><b>下一步</b> · 如果两个分支都改了 timeout，你会怎样决定保留哪个值？</span>
+</summary>
+<div class="gp-observation"><p>本题中，两个分支修改的字段不同。</p></div>
+</details>
+
+</div>
+<footer class="gp-tools">
+<details class="gp-scale">
+<summary>等级说明</summary>
+<ol start="0"><li><b>初识</b> · 第一次接触合并冲突。</li><li><b>辨认</b> · 能指出冲突中的两个版本。</li><li><b>跟做</b> · 能跟着示范合并一处修改。</li><li><b>有提示</b> · 能在提示下保留所需改动并说明如何验证。</li><li><b>独立</b> · 能在新冲突中自行选择处理方式并验证结果。</li><li><b>迁移</b> · 能解释取舍，并处理双方需求不兼容的情况。</li></ol>
+</details>
+<p class="gp-shortcuts" hidden><kbd dir="ltr">↑ ↓</kbd> / <kbd dir="ltr">j k</kbd> <span>选行</span> <kbd>↵</kbd> <span>依据</span></p>
+</footer>
+</article>
+</section>
+<script id="gp-keys">
+(() => {
+const report = document.getElementById("gp-report");
+function prepareKeys() {
+const first = report.querySelector(".gp-ability > summary");
+if (!first) return;
+report.querySelector(".gp-shortcuts").hidden = false;
+if (document.documentElement.hasAttribute("data-gp-page") && matchMedia("(pointer: fine)").matches &&
+(document.activeElement === document.body || document.activeElement.matches("#gp-import input"))) {
+const selected = report.querySelector(".is-focus > summary") || first;
+selected.focus({preventScroll: true});
+}
+}
+prepareKeys();
+report.addEventListener("gp-loaded", prepareKeys);
+report.addEventListener("keydown", event => {
+if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented) return;
+if (!event.target.matches(".gp-ability > summary")) return;
+const direction = {ArrowDown: "nextElementSibling", j: "nextElementSibling", ArrowUp: "previousElementSibling", k: "previousElementSibling"}[event.key];
+const next = direction && event.target.parentElement[direction]?.querySelector("summary");
+if (next) {
+event.preventDefault();
+next.focus();
+}
+});
+})();
+</script>

@@ -1,0 +1,48 @@
+{
+  "lang": "zh-CN",
+  "topic": "Git 合并冲突",
+  "summary": "配置文件中的一行冲突",
+  "goal": 4,
+  "goal_label": "目标",
+  "current_label": "当前等级",
+  "evidence_label": "分项掌握度",
+  "scale_label": "等级说明",
+  "focus_label": "下一项",
+  "check_label": "下一步",
+  "move_label": "选行",
+  "detail_label": "依据",
+  "back_label": "返回",
+  "quit_label": "退出",
+  "page_label": "翻页",
+  "levels": [
+    {"label": "初识", "meaning": "第一次接触合并冲突。"},
+    {"label": "辨认", "meaning": "能指出冲突中的两个版本。"},
+    {"label": "跟做", "meaning": "能跟着示范合并一处修改。"},
+    {"label": "有提示", "meaning": "能在提示下保留所需改动并说明如何验证。"},
+    {"label": "独立", "meaning": "能在新冲突中自行选择处理方式并验证结果。"},
+    {"label": "迁移", "meaning": "能解释取舍，并处理双方需求不兼容的情况。"}
+  ],
+  "abilities": [
+    {
+      "name": "合并两处改动",
+      "state": "observed",
+      "status": "独立完成一次",
+      "evidence": "合并后的配置保留了 timeout 的新值 30 和 retries 的新值 3。"
+    },
+    {
+      "name": "验证加载结果",
+      "state": "guided",
+      "level": 3,
+      "status": "提示后列出断言",
+      "evidence": "得到读取加载器返回值的提示后，分别对 timeout 和 retries 写出了断言。"
+    },
+    {
+      "name": "处理同一字段的分歧",
+      "state": "unassessed",
+      "status": "待测",
+      "focus": true,
+      "evidence": "本题中，两个分支修改的字段不同。",
+      "next_check": "如果两个分支都改了 timeout，你会怎样决定保留哪个值？"
+    }
+  ]
+}
