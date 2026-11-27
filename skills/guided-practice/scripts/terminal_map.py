@@ -75,7 +75,7 @@ def _wrap(text, width):
 def render_scale(data, *, width, color, ascii_only=False):
     """Show the record's six level definitions, aligned when the window has room."""
     width = max(1, min(width, 100))
-    title = data["scale_label"] or ("等级说明" if data["lang"].lower().startswith("zh") else "Mastery scale")
+    title = data["scale_label"] or ("0-5" if ascii_only else "0–5")
     if _width(title) + 2 <= width:
         title = ("* " if ascii_only else "✿ ") + title
     heading = list(_wrap(title, width))
@@ -162,7 +162,7 @@ def terminal_sections(data, *, width, color, ascii_only=False, inspect_level=Non
             value = past + remaining
             colored_value = paint(past, rose) + remaining
 
-        if focus and not check and data["focus_label"]:
+        if focus and not check and data["focus_label"] not in ("", "✦"):
             label = f"  [{data['focus_label']}]"
             value += label
             colored_value += label
@@ -192,7 +192,7 @@ def terminal_sections(data, *, width, color, ascii_only=False, inspect_level=Non
                 return name_block + " " * margin + result + "\n"
             return name_block + paragraph(reading + "  " + value, indent=margin)
 
-        cue = paragraph(data["check_label"] + joiner + check, indent=margin) if check else ""
+        cue = paragraph(joiner.join(filter(None, (data["check_label"], check))), indent=margin) if check else ""
         evidence = ability["evidence"]
         if level is not None and ability["status"]:
             evidence = joiner.join(filter(None, (ability["status"], evidence)))
@@ -210,7 +210,8 @@ def terminal_sections(data, *, width, color, ascii_only=False, inspect_level=Non
     footer = paragraph(caption("current"))
     if inspect_level is not None:
         item = data["levels"][inspect_level]
-        footer += paragraph(f"{inspect_level}/5 {item['label']}{joiner}{item['meaning']}")
+        level_label = f"{inspect_level}/5 {item['label']}".rstrip()
+        footer += paragraph(joiner.join(filter(None, (level_label, item["meaning"]))))
     return header, [sections_for(ability) for ability in abilities], footer
 
 
