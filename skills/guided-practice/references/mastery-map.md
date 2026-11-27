@@ -2,6 +2,8 @@
 
 The renderer uses Python 3.9 or later and the standard library. Run these commands from the skill's directory. Store the UTF-8 session record with the learner's local session artifacts.
 
+When creating the record, write the topic, rubric, observations and interface labels in the learner's language, including English sessions. Define each level with an observable task in this topic, using the six assessment anchors in the skill. A definition describes what would count as evidence. The learner's actual work goes in each ability's evidence field.
+
 | Record field | Content |
 | --- | --- |
 | `topic`, `summary` | Topic name and an optional short assessment caption. |
@@ -9,8 +11,12 @@ The renderer uses Python 3.9 or later and the standard library. Run these comman
 | `abilities` | Ordered subskills with `name`, `status`, `state`, `evidence`, and `level` (0–5 or null). Preserve the distinction between a first independent success and a confirmed independent level. |
 | `focus`, `next_check` on an ability | Set `focus: true` on the one subskill under practice. Optionally record what the next question should test. Keep the solution out of this cue. |
 | `state` on each ability | Use `guided` for work completed with help, `observed` for demonstrated work, or `unassessed` for an untested ability. Supply a numeric level only when assessed. |
-| `lang`, `goal_label`, `scale_label`, `evidence_label`, `focus_label`, `check_label` | Optional language tag and localized display labels. |
-| `levels` | Optional list of six objects with a short `label` and a one-sentence `meaning`, ordered 0–5. Supply these and the display labels for languages other than English. |
+| `lang`, `dir` | Set the language tag. Browsers infer text direction by default. Supply `rtl` or `ltr` when mixed scripts need an explicit reading direction. |
+| `levels` | Six objects ordered 0–5, each with a short `label` and a one-sentence `meaning` for this topic. |
+| `evidence_label`, `scale_label`, `current_label`, `goal_label`, `focus_label`, `check_label` | Short captions for the ability list, scale, current level, target, practice focus and next check. |
+| `move_label`, `detail_label`, `back_label`, `quit_label`, `page_label` | Short actions for selecting a row, inspecting evidence, returning, quitting and paging. The viewer supplies the keys. |
+
+When resuming an older record, keep its existing wording and fill any missing definitions or captions before sharing the map. Both the terminal and the web page display the text stored in that record.
 
 Draw in the current terminal.
 

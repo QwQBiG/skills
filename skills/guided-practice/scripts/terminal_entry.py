@@ -98,8 +98,8 @@ redraw() {
     else
         keys=$help; keys_width=$help_width
     fi
-    draw | GP_KEYS="$keys" awk -v height="$height" -v columns="$columns" -v page="$page" -v scale="$scale" \
-        -v help_width="$keys_width" -v paging="$paging" -v paging_width="$paging_width" '
+    draw | GP_KEYS="$keys" GP_PAGING="$paging" awk -v height="$height" -v columns="$columns" -v page="$page" -v scale="$scale" \
+        -v help_width="$keys_width" -v paging_width="$paging_width" '
         $0 == "\001" { start = n + 1; next }
         $0 == "\002" { finish = n; next }
         { lines[++n] = $0 }
@@ -108,7 +108,7 @@ redraw() {
             if (scale) { start = 1; finish = n }
             room = height - int((help_width + columns - 1) / columns) - 1
             if (start && finish - start + 1 > room) {
-                help = help "\n" paging
+                help = help "\n" ENVIRON["GP_PAGING"]
                 room -= int((paging_width + columns - 1) / columns)
             }
             if (room < 1) room = 1
@@ -216,17 +216,15 @@ def terminal_entry(data, *, width=None, ascii_only=False, inspect_level=None,
         for sgr, name in styles.items():
             script.append(name + '="${color:+$escape' + sgr[1:] + '}"')
 
-    arrows = "Up/Down" if ascii_only else "↑↓"
-    if data["lang"].lower().startswith("zh"):
-        scale_name = data["scale_label"] or "等级说明"
-        help_text = f"{arrows}/jk 选行  回车/空格 详情  s {scale_name}  q 退出"
-        scale_help = "s 返回  q 退出"
-        paging = "PgUp/PgDn 翻页"
-    else:
-        scale_name = data["scale_label"] or "Mastery scale"
-        help_text = f"{arrows}/jk move  Return/Space details  s {scale_name}  q quit"
-        scale_help = "s back  q quit"
-        paging = "PgUp/PgDn page through details"
+    def shortcut(keys, label):
+        return f"{keys} {data[label]}".rstrip()
+
+    move = shortcut("Up/Down/jk" if ascii_only else "↑↓/jk", "move_label")
+    detail_key = shortcut("Enter/Space" if ascii_only else "↵/␣", "detail_label")
+    quit_key = shortcut("q", "quit_label")
+    help_text = "  ".join((move, detail_key, shortcut("s", "scale_label"), quit_key))
+    scale_help = "  ".join((shortcut("s", "back_label"), quit_key))
+    paging = shortcut("PgUp/PgDn", "page_label")
 
     script.extend([f"selected={selected}", f"expanded={int(detail is not None)}",
                    f"last={len(abilities) - 1}", f"scale={int(show_scale)}",

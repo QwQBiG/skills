@@ -13,18 +13,12 @@ import sys
 import tempfile
 
 TEMPLATE = Path(__file__).resolve().parents[1] / "assets" / "mastery-map.html"
-DEFAULT_LEVELS = [
-    ("New", "This idea is new to the learner."),
-    ("Recognize", "Recognizes the idea when it appears."),
-    ("Follow", "Can follow a worked example."),
-    ("Guided", "Can apply the idea with help."),
-    ("Independent", "Can choose and apply the method independently."),
-    ("Adapt", "Can explain the method and adapt it to an unfamiliar constraint."),
-]
+# Old records can omit display text. Symbols keep scores and actions identifiable.
 LABELS = {
-    "lang": "en", "summary": "", "scale_label": "Mastery scale",
-    "evidence_label": "Skills and evidence", "current_label": "Current",
-    "goal_label": "Goal", "focus_label": "Focus", "check_label": "Next check",
+    "lang": "und", "dir": "auto", "summary": "", "scale_label": "0–5",
+    "evidence_label": "", "current_label": "●", "goal_label": "◎",
+    "focus_label": "✦", "check_label": "→", "move_label": "", "detail_label": "",
+    "back_label": "", "quit_label": "", "page_label": "",
 }
 
 
@@ -42,10 +36,12 @@ def grade(value, key):
 
 def load_map(raw):
     data = {k: string(raw.get(k, default), k) for k, default in LABELS.items()}
+    if data["dir"] not in ("auto", "ltr", "rtl"):
+        raise ValueError("dir must be auto, ltr, or rtl")
     data["topic"] = string(raw["topic"], "topic")
     data["current"] = grade(raw.get("current"), "current")
     data["goal"] = grade(raw.get("goal", 4), "goal")
-    levels = raw.get("levels", [dict(label=s, meaning=m) for s, m in DEFAULT_LEVELS])
+    levels = raw.get("levels", [{"label": "", "meaning": ""} for _ in range(6)])
     if not isinstance(levels, list) or len(levels) != 6:
         raise ValueError("levels needs six entries in order from 0 through 5")
     data["levels"] = [{k: string(level[k], k) for k in ("label", "meaning")} for level in levels]
@@ -94,13 +90,14 @@ def web_map(data, standalone):
     report = expand(layout, {**data, "goal_name": "" if goal is None else data["levels"][goal]["label"]})
     # Exports contain the completed report and native disclosures, including in script-free hosts.
     prefix = page.split('<article id="gp-report"', 1)[0]
+    language = f'lang="{html.escape(data["lang"])}" dir="{data["dir"]}"'
     if standalone:
-        prefix = prefix.replace('<html lang="en"', f'<html lang="{html.escape(data["lang"])}"', 1)
-        prefix = prefix.replace("<title>Mastery map</title>", f'<title>{html.escape(data["topic"])}</title>', 1)
+        prefix = prefix.replace('lang="und" dir="auto"', language, 1)
+        prefix = prefix.replace("<title>session.json</title>", f'<title>{html.escape(data["topic"])}</title>', 1)
     else:
         prefix = prefix[prefix.index("<style>"):]
     shortcuts = page[page.index('<script id="gp-keys">'):]
-    return (f'{prefix}<article id="gp-report" aria-labelledby="gp-topic" lang="{html.escape(data["lang"])}">'
+    return (f'{prefix}<article id="gp-report" aria-labelledby="gp-topic" {language}>'
             f'{report}</article>\n</section>\n{shortcuts}')
 
 

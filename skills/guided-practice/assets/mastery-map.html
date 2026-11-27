@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" data-gp-page>
+<html lang="und" dir="auto" data-gp-page>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Mastery map</title>
+<title>session.json</title>
 <style>
   html[data-gp-page] { color-scheme: light dark; background: #fcfafb; }
   html[data-gp-page] body { margin: 0; padding: clamp(1.1rem, 5vw, 4rem) clamp(.8rem, 4vw, 2rem); }
@@ -57,6 +57,8 @@
   }
   .gp-ability[open] summary::after { transform: rotate(45deg); }
   .gp-ability.is-focus > summary { box-shadow: inset 3px 0 var(--rose); background: var(--wash); }
+  #gp-report:dir(rtl) .gp-ability.is-focus > summary { box-shadow: inset -3px 0 var(--rose); }
+  #gp-report:dir(rtl) :is(h1,.gp-meter)::before, #gp-report:dir(rtl) .gp-ability:not([open]) summary::after { scale: -1 1; }
   .gp-ability > summary:focus-visible { outline: 2px solid var(--berry); outline-offset: -2px; }
   .gp-name { font-weight: 650; }
   .gp-focus { display: inline-block; margin-inline-start: .55em; color: var(--rose); font: 650 .78rem/1.4 var(--mono); }
@@ -69,7 +71,7 @@
     mask-image: repeating-linear-gradient(to right, #000 0 calc(20% - 2px), transparent calc(20% - 2px) 20%);
   }
   .gp-rows.with-goal .gp-meter::after {
-    content: ""; position: absolute; left: clamp(0px, calc(var(--goal) * 20% - 2px), calc(100% - 2px));
+    content: ""; position: absolute; inset-inline-start: clamp(0px, calc(var(--goal) * 20% - 2px), calc(100% - 2px));
     top: -3px; height: 13px; width: 2px; background: var(--amber);
   }
   .gp-score { grid-area: 1 / 4; text-align: end; font: 650 .95rem/1.4 var(--mono); }
@@ -83,6 +85,7 @@
   .gp-scale summary:focus-visible { outline: 2px solid var(--rose); }
   .gp-scale ol { padding-inline-start: 1.6rem; font-size: .87rem; }
   .gp-scale li { margin: .25rem 0; }
+  .gp-scale li:empty { min-height: 1.45em; }
   .gp-scale li b { color: var(--ink); }
   .gp-shortcuts { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem; font: 400 .78rem/1.5 var(--mono); color: var(--quiet); }
   #gp-mastery kbd { padding: 0 .23rem; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 3px; font: inherit; color: var(--ink); }
@@ -105,51 +108,42 @@
 <section id="gp-mastery">
   <article id="gp-report" aria-labelledby="gp-topic" hidden></article>
   <style id="gp-import-style">
-    .gp-intro p { margin-top: .45rem; color: var(--quiet); }
     #gp-import { margin-block-start: .75rem; }
-    .gp-open {
-      position: relative; display: inline-block; margin-top: .7rem; padding: .55rem .8rem;
-      border: 1px solid var(--rose); border-radius: .3rem; color: var(--rose);
-    }
-    .gp-open:focus-within { outline: 2px solid var(--rose); }
-    .gp-open input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    #gp-import input { max-width: 100%; color: inherit; font: inherit; }
+    #gp-import input::file-selector-button { padding: .5rem .7rem; color: var(--rose); border: 1px solid currentColor; border-radius: .3rem; background: transparent; cursor: pointer; }
     #gp-error { color: var(--rose); }
-    @media (pointer: coarse) { .gp-open { box-sizing: border-box; min-height: 44px; } }
+    @media (pointer: coarse) { #gp-import input::file-selector-button { min-height: 44px; } }
   </style>
   <div id="gp-import">
-    <header class="gp-intro">
-      <h1>Mastery map</h1>
-      <p>Open your practice record to see each skill, its level and the evidence behind it.</p>
-    </header>
-    <label class="gp-open"><span>Open session.json</span><input type="file" accept=".json,application/json"></label>
+    <label>session.json <input type="file" accept=".json,application/json"></label>
     <p id="gp-error" role="alert"></p>
   </div>
   <template id="gp-layout">
     <header><h1 id="gp-topic">{{topic}}</h1>{{#summary}}<p class="gp-caption">{{summary}}</p>{{/summary}}</header>
     <div class="gp-heading">
-      <h2>{{evidence_label}}</h2>
-      <span class="gp-key">{{#current}}<span>{{current_label}} {{current}}/5</span>{{/current}}{{#goal}}<span class="gp-goal">{{goal_label}} {{goal}}/5 · {{goal_name}}</span>{{/goal}}</span>
+      {{#evidence_label}}<h2>{{evidence_label}}</h2>{{/evidence_label}}
+      <span class="gp-key">{{#current}}<span>{{current_label}} <bdi dir="ltr">{{current}}/5</bdi></span>{{/current}}{{#goal}}<span class="gp-goal">{{goal_label}} <bdi dir="ltr">{{goal}}/5</bdi>{{#goal_name}} · {{goal_name}}{{/goal_name}}</span>{{/goal}}</span>
     </div>
     <div class="gp-rows{{#goal}} with-goal{{/goal}}" style="--goal:{{goal}}">
     {{#abilities}}
     <details class="gp-ability{{#focus}} is-focus{{/focus}}" data-state="{{state}}">
       <summary>
-        <span><b class="gp-name">{{name}}</b>{{#focus}}<span class="gp-focus">{{focus_label}}</span>{{/focus}}</span>
+        <span><b class="gp-name" dir="auto">{{name}}</b>{{#focus}}<span class="gp-focus">{{focus_label}}</span>{{/focus}}</span>
         <span class="gp-status">{{status}}</span>
         {{#level}}<span class="gp-meter" aria-hidden="true" style="--score:{{level}}"></span>{{/level}}
-        <span class="gp-score{{^level}} unscored{{/level}}">{{#level}}{{level}}/5{{/level}}{{^level}}—{{/level}}</span>
-        {{#focus}}{{#next_check}}<span class="gp-check"><b>{{check_label}}</b> · {{next_check}}</span>{{/next_check}}{{/focus}}
+        <span class="gp-score{{^level}} unscored{{/level}}"><bdi dir="ltr">{{#level}}{{level}}/5{{/level}}{{^level}}—{{/level}}</bdi></span>
+        {{#focus}}{{#next_check}}<span class="gp-check">{{#check_label}}<b>{{check_label}}</b> · {{/check_label}}{{next_check}}</span>{{/next_check}}{{/focus}}
       </summary>
-      <div class="gp-observation"><p>{{evidence}}</p>{{^focus}}{{#next_check}}<span class="gp-check"><b>{{check_label}}</b> · {{next_check}}</span>{{/next_check}}{{/focus}}</div>
+      <div class="gp-observation"><p>{{evidence}}</p>{{^focus}}{{#next_check}}<span class="gp-check">{{#check_label}}<b>{{check_label}}</b> · {{/check_label}}{{next_check}}</span>{{/next_check}}{{/focus}}</div>
     </details>
     {{/abilities}}
     </div>
     <footer class="gp-tools">
       <details class="gp-scale">
         <summary>{{scale_label}}</summary>
-        <ol start="0">{{#levels}}<li><b>{{label}}</b> · {{meaning}}</li>{{/levels}}</ol>
+        <ol start="0">{{#levels}}<li>{{#label}}<b>{{label}}</b>{{#meaning}} · {{/meaning}}{{/label}}{{meaning}}</li>{{/levels}}</ol>
       </details>
-      <p class="gp-shortcuts" hidden><kbd>↑ ↓</kbd> / <kbd>j k</kbd> <span></span> <kbd>↵</kbd> <span></span></p>
+      <p class="gp-shortcuts" hidden><kbd dir="ltr">↑ ↓</kbd> / <kbd dir="ltr">j k</kbd>{{#move_label}} <span>{{move_label}}</span>{{/move_label}} <kbd>↵</kbd>{{#detail_label}} <span>{{detail_label}}</span>{{/detail_label}}</p>
     </footer>
   </template>
 </section>
@@ -157,15 +151,7 @@
 (() => {
   const root = document.getElementById("gp-mastery");
   const report = root.querySelector("#gp-report");
-  const intro = root.querySelector(".gp-intro");
   const fileInput = root.querySelector("input");
-  const chinese = navigator.language.toLowerCase().startsWith("zh");
-  const defaults = [
-    ["New", "This idea is new to the learner."], ["Recognize", "Recognizes the idea when it appears."],
-    ["Follow", "Can follow a worked example."], ["Guided", "Can apply the idea with help."],
-    ["Independent", "Can choose and apply the method independently."],
-    ["Adapt", "Can explain the method and adapt it to an unfamiliar constraint."]
-  ].map(([label, meaning]) => ({label, meaning}));
 
   function text(value, key) {
     if (typeof value !== "string" || /[\x00-\x1f\x7f-\x9f]/.test(value)) throw Error(key);
@@ -191,11 +177,13 @@
   }
 
   function show(source) {
-    const data = {lang: "en", summary: "", current: null, goal: 4, levels: defaults,
-      current_label: "Current", goal_label: "Goal", evidence_label: "Skills and evidence",
-      focus_label: "Focus", check_label: "Next check", scale_label: "Mastery scale", ...source};
-    for (const key of ["topic", "summary", "lang", "current_label", "goal_label", "evidence_label",
-      "focus_label", "check_label", "scale_label"]) data[key] = text(data[key], key);
+    const captions = {lang: "und", dir: "auto", summary: "", scale_label: "0–5", evidence_label: "",
+      current_label: "●", goal_label: "◎", focus_label: "✦", check_label: "→",
+      move_label: "", detail_label: "", back_label: "", quit_label: "", page_label: ""};
+    const data = {current: null, goal: 4, levels: Array.from({length: 6}, () => ({label: "", meaning: ""})),
+      ...captions, ...source};
+    for (const key of ["topic", ...Object.keys(captions)]) data[key] = text(data[key], key);
+    if (!["auto", "ltr", "rtl"].includes(data.dir)) throw Error("dir");
     grade(data.current, "current");
     grade(data.goal, "goal");
     if (!Array.isArray(data.levels) || data.levels.length !== 6) throw Error("levels");
@@ -212,19 +200,13 @@
         state, level, focus, next_check: text(next_check, "next_check")};
     });
     report.innerHTML = expand(root.querySelector("#gp-layout").innerHTML, data);
-    report.lang = data.lang;
+    document.documentElement.lang = report.lang = data.lang;
+    document.documentElement.dir = report.dir = data.dir;
     report.hidden = false;
-    intro.hidden = true;
     document.title = data.topic;
     report.dispatchEvent(new Event("gp-loaded"));
   }
 
-  if (chinese) {
-    root.lang = "zh";
-    intro.querySelector("h1").textContent = document.title = "子技能掌握图";
-    intro.querySelector("p").textContent = "打开练习记录，查看每项子技能的等级和评定依据。";
-    root.querySelector(".gp-open span").textContent = "打开 session.json";
-  }
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files[0];
     if (!file) return;
@@ -233,9 +215,8 @@
     try {
       show(JSON.parse(await file.text()));
       error.textContent = "";
-    } catch {
-      error.textContent = chinese ? "无法读取记录。请检查 JSON 格式和子技能字段，再次打开文件。" :
-        "Could not read this record. Check its JSON and skill fields, then open it again.";
+    } catch (problem) {
+      error.textContent = "⚠ " + file.name + " · " + problem.message;
     } finally {
       fileInput.value = "";
       fileInput.disabled = false;
@@ -249,12 +230,7 @@
   function prepareKeys() {
     const first = report.querySelector(".gp-ability > summary");
     if (!first) return;
-    const hint = report.querySelector(".gp-shortcuts");
-    const zh = report.lang.toLowerCase().startsWith("zh");
-    const [move, details] = hint.querySelectorAll("span");
-    move.textContent = zh ? "移动" : "Move";
-    details.textContent = zh ? "详情" : "Details";
-    hint.hidden = false;
+    report.querySelector(".gp-shortcuts").hidden = false;
     if (document.documentElement.hasAttribute("data-gp-page") && matchMedia("(pointer: fine)").matches &&
         (document.activeElement === document.body || document.activeElement.matches("#gp-import input"))) {
       const selected = report.querySelector(".is-focus > summary") || first;
