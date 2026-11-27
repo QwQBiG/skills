@@ -18,7 +18,9 @@ Draw in the current terminal.
 python3 scripts/render_map.py session.json
 ```
 
-On a Mac or Linux terminal, use ↑/↓ or J/K to select a subskill, Return or Space to toggle its evidence, and Q to quit. The practice focus stays on the same subskill while you inspect others. For a compact snapshot, use `--once` or pipe the output. Use `--detail "Ability name"` for one row's evidence or `--inspect 4` for a level definition. The display follows the terminal width and `NO_COLOR`, with overrides for `--width`, `--ascii` and `--color`. Use `-` to read a record from stdin.
+On a Mac or Linux terminal, use ↑/↓ or j/k to select a subskill and Return or Space to toggle its evidence. Press `s` to read the six level definitions and `s` again to return to the same row. Press `q` to quit.
+
+Use `--once` for a compact snapshot or `--once --scale` to print the whole scale. Use `--detail "Ability name"` for one row's evidence or `--inspect 4` for a single level. The display follows the terminal width and `NO_COLOR`, with overrides for `--width`, `--ascii` and `--color`. Use `-` to read a record from stdin.
 
 To share the terminal view, export a self-contained file alongside the record.
 

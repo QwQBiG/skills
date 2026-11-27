@@ -72,6 +72,33 @@ def _wrap(text, width):
         yield line
 
 
+def render_scale(data, *, width, color, ascii_only=False):
+    """Show the record's six level definitions, aligned when the window has room."""
+    width = max(1, min(width, 100))
+    title = data["scale_label"] or ("等级说明" if data["lang"].lower().startswith("zh") else "Mastery scale")
+    if _width(title) + 2 <= width:
+        title = ("* " if ascii_only else "✿ ") + title
+    heading = list(_wrap(title, width))
+    if color:
+        heading = [f"\x1b[1;35;38;5;211m{line}\x1b[0m" for line in heading]
+    lines = [*heading, ""]
+    levels = data["levels"]
+    label_width = max(_width(level["label"]) for level in levels)
+    meaning_column = 3 + label_width + 2
+    for number, level in enumerate(levels):
+        label = level["label"]
+        prefix = f"{number}  {label}"
+        if width - meaning_column < 12:
+            lines.extend(_wrap(prefix, width))
+            indent = " " * min(3, max(width - 2, 0))
+            lines.extend(indent + part for part in _wrap(level["meaning"], width - len(indent)))
+            continue
+        meaning = iter(_wrap(level["meaning"], width - meaning_column))
+        lines.append((prefix + " " * (label_width - _width(label) + 2) + next(meaning, "")).rstrip())
+        lines.extend(" " * meaning_column + part for part in meaning)
+    return "\n".join(lines) + "\n"
+
+
 def terminal_sections(data, *, width, color, ascii_only=False, inspect_level=None):
     """Return the header, (normal, selected, evidence, focus cue) rows, and footer."""
     width = max(1, min(width, 100))

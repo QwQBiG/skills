@@ -3,7 +3,7 @@
 import re
 import shlex
 
-from terminal_map import _width, terminal_sections
+from terminal_map import _width, render_scale, terminal_sections
 
 
 def _print_view(view, styles):
@@ -18,7 +18,7 @@ def _print_view(view, styles):
     return "printf '%s' " + " ".join(pieces)
 
 
-def _layouts(data, widths, **options):
+def _layouts(data, widths, *, inspect_level=None, **options):
     # Store each distinct fragment once. Each width's layout holds just its indices.
     fragments = {"": 0}
 
@@ -27,10 +27,11 @@ def _layouts(data, widths, **options):
 
     layouts = []
     for columns in widths:
-        header, rows, footer = terminal_sections(data, width=columns, **options)
+        header, rows, footer = terminal_sections(data, width=columns, inspect_level=inspect_level, **options)
         if not header and not rows and not footer:
             header = "\n"
-        ids = [index(header), index(footer)]
+        scale = render_scale(data, width=columns, **options)
+        ids = [index(scale), index(header), index(footer)]
         for row in rows:
             ids.extend(index(part) for part in row)
         if not layouts or ids != layouts[-1][1]:
@@ -58,9 +59,10 @@ def _layouts(data, widths, **options):
 
 _VIEWER = r"""
 draw_rows() {
-    block "$1"
-    footer=$2
-    shift 2
+    if [ "$scale" = 1 ]; then block "$1"; return; fi
+    block "$2"
+    footer=$3
+    shift 3
     row=0
     while [ "$#" -gt 0 ]; do
         if [ "$row" -eq "$selected" ] && [ "$interactive$expanded" != 00 ]; then
@@ -91,12 +93,19 @@ dimensions() {
 redraw() {
     dimensions
     printf '\033[H\033[2J'
-    draw | awk -v height="$height" -v columns="$columns" -v page="$page" \
-        -v help="$help" -v help_width="$help_width" -v paging="$paging" -v paging_width="$paging_width" '
+    if [ "$scale" = 1 ]; then
+        keys=$scale_help; keys_width=$scale_help_width
+    else
+        keys=$help; keys_width=$help_width
+    fi
+    draw | GP_KEYS="$keys" awk -v height="$height" -v columns="$columns" -v page="$page" -v scale="$scale" \
+        -v help_width="$keys_width" -v paging="$paging" -v paging_width="$paging_width" '
         $0 == "\001" { start = n + 1; next }
         $0 == "\002" { finish = n; next }
         { lines[++n] = $0 }
         END {
+            help = ENVIRON["GP_KEYS"]
+            if (scale) { start = 1; finish = n }
             room = height - int((help_width + columns - 1) / columns) - 1
             if (start && finish - start + 1 > room) {
                 help = help "\n" paging
@@ -138,6 +147,7 @@ stty -echo -icanon min 0 time 10 || { draw; exit; }
 interactive=1
 printf '\033[?1049h\033[?25l'
 page=0
+other_page=0
 redraw
 sequence=
 carriage_return=$(printf '\r')
@@ -148,22 +158,29 @@ while :; do
     if [ -z "$key" ]; then
         previous="$height:$columns"
         dimensions || break
-        if [ "$previous" != "$height:$columns" ]; then page=0; redraw; fi
+        if [ "$previous" != "$height:$columns" ]; then page=0; other_page=0; redraw; fi
         continue
     fi
     case "$key" in
         "$escape") sequence=esc; continue ;;
         q|Q) break ;;
     esac
+    if [ "$scale" = 1 ]; then
+        case "$sequence:$key" in
+            arrow:A|:k) sequence=; key=b ;;
+            arrow:B|:j) sequence=; key=f ;;
+        esac
+    fi
     case "$sequence:$key" in
         'esc:['|esc:O) sequence=arrow; continue ;;
         arrow:5|arrow:6) sequence="page$key"; continue ;;
         'page5:~'|:b) if [ "$page" -gt 0 ]; then page=$((page - 1)); fi ;;
         'page6:~'|:f) if [ "$next_page" = 1 ]; then page=$((page + 1)); fi ;;
+        :s|:S) scale=$((1 - scale)); last_page=$page; page=$other_page; other_page=$last_page ;;
         arrow:A|:k) if [ "$selected" -gt 0 ]; then selected=$((selected - 1)); fi; page=0 ;;
         arrow:B|:j) if [ "$selected" -lt "$last" ]; then selected=$((selected + 1)); fi; page=0 ;;
         :'
-'|:"$carriage_return"|:' ') expanded=$((1 - expanded)); page=0 ;;
+'|:"$carriage_return"|:' ') if [ "$scale" = 0 ]; then expanded=$((1 - expanded)); page=0; fi ;;
         *) sequence=; continue ;;
     esac
     sequence=
@@ -173,7 +190,7 @@ done
 
 
 def terminal_entry(data, *, width=None, ascii_only=False, inspect_level=None,
-                   detail=None, color_mode="auto") -> str:
+                   detail=None, color_mode="auto", show_scale=False) -> str:
     """Build an offline viewer with keyboard controls and a pipe-friendly plain view."""
     if width is not None and width <= 0:
         raise ValueError("width must be positive")
@@ -201,14 +218,20 @@ def terminal_entry(data, *, width=None, ascii_only=False, inspect_level=None,
 
     arrows = "Up/Down" if ascii_only else "↑↓"
     if data["lang"].lower().startswith("zh"):
-        help_text = f"{arrows}/jk 选行  回车/空格 详情  q 退出"
+        scale_name = data["scale_label"] or "等级说明"
+        help_text = f"{arrows}/jk 选行  回车/空格 详情  s {scale_name}  q 退出"
+        scale_help = "s 返回  q 退出"
         paging = "PgUp/PgDn 翻页"
     else:
-        help_text = f"{arrows}/jk move  Return/Space details  q quit"
+        scale_name = data["scale_label"] or "Mastery scale"
+        help_text = f"{arrows}/jk move  Return/Space details  s {scale_name}  q quit"
+        scale_help = "s back  q quit"
         paging = "PgUp/PgDn page through details"
 
     script.extend([f"selected={selected}", f"expanded={int(detail is not None)}",
-                   f"last={len(abilities) - 1}", "help=" + shlex.quote(help_text),
+                   f"last={len(abilities) - 1}", f"scale={int(show_scale)}",
+                   "scale_help=" + shlex.quote(scale_help), f"scale_help_width={_width(scale_help)}",
+                   "help=" + shlex.quote(help_text),
                    f"help_width={_width(help_text)}", "paging=" + shlex.quote(paging),
                    f"paging_width={_width(paging)}", *functions, _VIEWER])
     return "\n".join(script)
