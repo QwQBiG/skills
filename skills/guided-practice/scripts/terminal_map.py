@@ -73,15 +73,16 @@ def _wrap(text, width):
 
 
 def terminal_sections(data, *, width, color, ascii_only=False, inspect_level=None):
-    """Return the header, (normal, selected, detail) text for each row, and footer."""
+    """Return the header, (normal, selected, evidence, focus cue) rows, and footer."""
     width = max(1, min(width, 100))
     joiner = " | " if ascii_only else " · "
-    cursor, focus_mark, title_mark = (">", "*", "|") if ascii_only else ("›", "✦", "▌")
-    filled, empty = ("=", ".") if ascii_only else ("━", "·")
+    cursor, focus_mark, rail = (">", "*", "|") if ascii_only else ("▸", "✦", "│")
+    filled, empty = ("=", ".") if ascii_only else ("▮", "▯")
+    rose = "35;38;5;211"
     marks = {
-        "observed": ("+" if ascii_only else "◇", "36"),
-        "guided": ("~", "33"),
-        "unassessed": ("-" if ascii_only else "—", None),
+        "observed": "+" if ascii_only else "◇",
+        "guided": "~",
+        "unassessed": "-" if ascii_only else "—",
     }
 
     def paint(text, sgr):
@@ -99,23 +100,24 @@ def terminal_sections(data, *, width, color, ascii_only=False, inspect_level=Non
 
     abilities = data["abilities"]
     longest = max((_width(a["name"]) for a in abilities), default=0)
-    # Reserve the first two cells for independent cursor and teaching-focus marks.
-    margin = 3
+    # Leave a cell between the keyboard cursor and the teaching focus.
+    margin = 4
     column_gap = 1 if width < 36 else 2
-    step_gap = " " if longest + margin + column_gap + 14 <= width else ""
-    meter_width = 5 + 4 * len(step_gap)
-    column = min(longest, max(0, width - margin - column_gap - 5 - meter_width))
+    column = min(longest, max(0, width - margin - column_gap - 10))
 
     title, goal = data["topic"], caption("goal")
-    if title and width >= 8:
-        title = title_mark + " " + title
     title_width = _width(title)
     room = width - title_width - _width(goal)
+    flower = ""
+    if title and room >= (5 if goal else 2):
+        flower = paint("*" if ascii_only else "✿", rose) + " "
+        title_width += 2
+        room -= 2
     if title and goal and room >= 3:
         gap = min(room, max(3, margin + column_gap + column - title_width))
-        header = paint(title, "1;36") + " " * gap + goal + "\n"
+        header = flower + paint(title, "1;35") + " " * gap + goal + "\n"
     else:
-        header = paragraph(title, sgr="1;36") + paragraph(goal)
+        header = flower + paragraph(title, sgr="1;35") + paragraph(goal)
     if header and abilities:
         header += "\n"
 
@@ -123,34 +125,33 @@ def terminal_sections(data, *, width, color, ascii_only=False, inspect_level=Non
         name, level = ability["name"], ability.get("level")
         focus, check = ability.get("focus"), ability.get("next_check")
         if level is None:
-            reading, style = marks[ability["state"]]
+            reading = marks[ability["state"]]
             value = ability["status"]
             colored_value = value
         else:
             reading = f"{level}/5"
-            style = "32" if level >= 4 else "33"
-            past = step_gap.join([filled] * level)
-            remaining = step_gap.join([empty] * (5 - level))
-            between = step_gap if past and remaining else ""
-            value = past + between + remaining
-            colored_value = paint(past, style) + between + remaining
+            past = filled * level
+            remaining = empty * (5 - level)
+            value = past + remaining
+            colored_value = paint(past, rose) + remaining
 
         if focus and not check and data["focus_label"]:
             label = f"  [{data['focus_label']}]"
             value += label
-            colored_value += paint(label, "35")
+            colored_value += label
         name_width = _width(name)
         gap = column_gap + max(0, column - name_width)
         room = width - margin - name_width - gap - _width(reading) - _width(value)
         padding = " " * max(1, min(5 - _width(reading), room)) if value else ""
-        result = paint(reading, style) + padding + colored_value
+        result = reading + padding + colored_value
         result_width = _width(reading + padding + value)
+        gap = min(gap, max(column_gap, width - margin - name_width - result_width))
 
         def row(selected):
-            cursor_cell = paint(cursor, "1;36") if selected else " "
-            focus_cell = paint(focus_mark, "1;35") if focus else " "
-            gutter = cursor_cell + focus_cell + " "
-            name_style = "7" if selected else ("1" if focus else None)
+            cursor_cell = paint(cursor, rose) if selected else " "
+            focus_cell = focus_mark if focus else " "
+            gutter = cursor_cell + " " + focus_cell + " "
+            name_style = "1" if selected else None
             if margin + name_width + gap + result_width <= width:
                 return gutter + paint(name, name_style) + " " * gap + result + "\n"
 
@@ -158,21 +159,26 @@ def terminal_sections(data, *, width, color, ascii_only=False, inspect_level=Non
                 name_block = paragraph(name, indent=margin, sgr=name_style)
                 name_block = gutter + name_block[margin:]
             else:
-                markers = (cursor if selected else "") + (focus_mark if focus else "")
+                markers = " ".join(mark for mark, visible in ((cursor, selected), (focus_mark, focus)) if visible)
                 name_block = paragraph(markers) + paragraph(name, sgr=name_style)
             if margin + result_width <= width:
                 return name_block + " " * margin + result + "\n"
             return name_block + paragraph(reading + "  " + value, indent=margin)
 
         cue = paragraph(data["check_label"] + joiner + check, indent=margin) if check else ""
-        detail = ""
-        if level is not None:
-            detail = paragraph(ability["status"], indent=margin)
-        detail += paragraph(ability["evidence"], indent=margin)
+        evidence = ability["evidence"]
+        if level is not None and ability["status"]:
+            evidence = joiner.join(filter(None, (ability["status"], evidence)))
+        # The evidence guide begins at the name column, one level below its row.
+        if width >= margin + 4:
+            prefix = " " * margin + paint(rail, rose) + " "
+            detail = "".join(prefix + line + "\n" for line in _wrap(evidence, width - margin - 2))
+        else:
+            detail = paragraph(evidence)
         if not focus:
             detail += cue
         focus_cue = cue if focus else ""
-        return row(False) + focus_cue, row(True) + focus_cue, detail
+        return row(False), row(True), detail, focus_cue
 
     footer = paragraph(caption("current"))
     if inspect_level is not None:
@@ -191,6 +197,6 @@ def render_terminal(data, *, width, color, ascii_only=False, inspect_level=None,
     header, rows, footer = terminal_sections(
         data, width=width, color=color, ascii_only=ascii_only, inspect_level=inspect_level
     )
-    body = "".join(highlight + evidence if i == selected else normal
-                   for i, (normal, highlight, evidence) in enumerate(rows))
+    body = "".join((highlight + evidence if i == selected else normal) + cue
+                   for i, (normal, highlight, evidence, cue) in enumerate(rows))
     return header + body + footer or "\n"

@@ -71,6 +71,8 @@ def load_map(raw):
 
 def web_map(data, standalone):
     page = TEMPLATE.read_text(encoding="utf-8")
+    # Drop source indentation before expanding repeated rows or inserting learner text.
+    page = re.sub(r"\n[ \t]+", "\n", page)
     layout = page.split('<template id="gp-layout">', 1)[1].split("</template>", 1)[0]
     slots = re.compile(r"{{([#^])(\w+)}}([\s\S]*?){{/\2}}|{{(\w+)}}")
 

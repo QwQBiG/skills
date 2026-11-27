@@ -67,11 +67,13 @@ draw_rows() {
             if [ "$interactive" = 1 ]; then printf '\001\n'; fi
             block "$2"
             if [ "$expanded" = 1 ]; then block "$3"; fi
+            block "$4"
             if [ "$interactive" = 1 ]; then printf '\002\n'; fi
         else
             block "$1"
+            block "$4"
         fi
-        shift 3
+        shift 4
         row=$((row + 1))
     done
     block "$footer"
